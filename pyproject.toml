@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qlab-quant"
+version = "1.0.0"
+description = "QLab —— A 股多因子选股与趋势择时量化交易系统（数据接入 / 因子 / 回测 / 看板）"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "QLab Team" }]
+keywords = ["quant", "backtest", "multi-factor", "a-share", "momentum"]
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "Pillow>=10.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+report = ["python-docx>=1.1"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+qlab = "qlab.cli:main"
+
+[tool.setuptools]
+packages = ["qlab", "qlab.data", "qlab.data.providers", "qlab.factors",
+            "qlab.strategy", "qlab.backtest", "qlab.analytics", "qlab.viz",
+            "qlab.webapp"]
+
+[tool.setuptools.package-data]
+"qlab.webapp" = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

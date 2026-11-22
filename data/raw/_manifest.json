@@ -1,0 +1,2121 @@
+{
+  "symbols": {
+    "sh601988": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601939": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601398": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601288": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688825": {
+      "rows": 79,
+      "start": "2026-07-27",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600519": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601857": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601088": {
+      "rows": 2228,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600036": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601318": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601628": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601328": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600900": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600028": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002594": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000333": {
+      "rows": 2262,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601899": {
+      "rows": 2298,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601998": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300308": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601166": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002371": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600030": {
+      "rows": 2285,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600000": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002475": {
+      "rows": 2301,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002415": {
+      "rows": 2300,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601601": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601319": {
+      "rows": 1943,
+      "start": "2018-11-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600276": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601211": {
+      "rows": 2283,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300059": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000858": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601225": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601919": {
+      "rows": 2261,
+      "start": "2017-07-26",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600150": {
+      "rows": 2161,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002714": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600919": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603993": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688836": {
+      "rows": 62,
+      "start": "2026-08-19",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000001": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002142": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300502": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000651": {
+      "rows": 2295,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300760": {
+      "rows": 1966,
+      "start": "2018-10-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600309": {
+      "rows": 2177,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh000300": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day",
+      "kind": "index"
+    },
+    "sh000905": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day",
+      "kind": "index"
+    },
+    "sh600941": {
+      "rows": 1181,
+      "start": "2022-01-05",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600938": {
+      "rows": 1112,
+      "start": "2022-04-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688981": {
+      "rows": 1534,
+      "start": "2020-07-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300750": {
+      "rows": 2050,
+      "start": "2018-06-11",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601138": {
+      "rows": 2051,
+      "start": "2018-06-08",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601658": {
+      "rows": 1684,
+      "start": "2019-12-10",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601728": {
+      "rows": 1271,
+      "start": "2021-08-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688256": {
+      "rows": 1538,
+      "start": "2020-07-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603259": {
+      "rows": 2074,
+      "start": "2018-05-08",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688235": {
+      "rows": 1195,
+      "start": "2021-12-15",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688041": {
+      "rows": 1025,
+      "start": "2022-08-12",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688347": {
+      "rows": 787,
+      "start": "2023-08-07",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601816": {
+      "rows": 1658,
+      "start": "2020-01-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688012": {
+      "rows": 1770,
+      "start": "2019-07-22",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz003816": {
+      "rows": 1754,
+      "start": "2019-08-26",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600025": {
+      "rows": 2166,
+      "start": "2017-12-15",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601995": {
+      "rows": 1443,
+      "start": "2020-11-02",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600690": {
+      "rows": 2300,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603288": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600887": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601985": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600406": {
+      "rows": 2292,
+      "start": "2017-06-08",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601668": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601766": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601818": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601898": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603268": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600031": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688820": {
+      "rows": 144,
+      "start": "2026-04-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002352": {
+      "rows": 2299,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600930": {
+      "rows": 328,
+      "start": "2025-07-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600188": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601066": {
+      "rows": 2044,
+      "start": "2018-06-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601869": {
+      "rows": 2022,
+      "start": "2018-07-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601009": {
+      "rows": 2300,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002379": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000725": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601688": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601336": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600809": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000338": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688008": {
+      "rows": 1779,
+      "start": "2019-07-22",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002463": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688072": {
+      "rows": 1103,
+      "start": "2022-04-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600016": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600660": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300033": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600989": {
+      "rows": 1825,
+      "start": "2019-05-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz302132": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300274": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688801": {
+      "rows": 45,
+      "start": "2026-09-11",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603986": {
+      "rows": 2211,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000776": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688802": {
+      "rows": 224,
+      "start": "2025-12-17",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002916": {
+      "rows": 2166,
+      "start": "2017-12-13",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300124": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600183": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600050": {
+      "rows": 2245,
+      "start": "2017-08-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600018": {
+      "rows": 2299,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600019": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300999": {
+      "rows": 1481,
+      "start": "2020-10-15",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600999": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600886": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601600": {
+      "rows": 2193,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001248": {
+      "rows": 96,
+      "start": "2026-07-02",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601169": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002050": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002384": {
+      "rows": 2232,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600926": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600760": {
+      "rows": 2295,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688795": {
+      "rows": 232,
+      "start": "2025-12-05",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601229": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601111": {
+      "rows": 2301,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000063": {
+      "rows": 2262,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300408": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601881": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601872": {
+      "rows": 2222,
+      "start": "2017-09-12",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600011": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300433": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601100": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001289": {
+      "rows": 1168,
+      "start": "2022-01-24",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000568": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600104": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300498": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300604": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600111": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600346": {
+      "rows": 2284,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601633": {
+      "rows": 2295,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300394": {
+      "rows": 2297,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000792": {
+      "rows": 1983,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002493": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000166": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688120": {
+      "rows": 1082,
+      "start": "2022-06-08",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001399": {
+      "rows": 100,
+      "start": "2026-06-26",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000100": {
+      "rows": 2252,
+      "start": "2017-07-26",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600015": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603019": {
+      "rows": 2289,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300476": {
+      "rows": 2297,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601390": {
+      "rows": 2228,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603501": {
+      "rows": 2131,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688082": {
+      "rows": 1214,
+      "start": "2021-11-18",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600176": {
+      "rows": 2290,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600547": {
+      "rows": 2301,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601888": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688111": {
+      "rows": 1700,
+      "start": "2019-11-18",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688506": {
+      "rows": 937,
+      "start": "2023-01-06",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301666": {
+      "rows": 144,
+      "start": "2026-04-16",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000538": {
+      "rows": 2251,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002938": {
+      "rows": 1980,
+      "start": "2018-09-18",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601868": {
+      "rows": 1246,
+      "start": "2021-09-28",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600795": {
+      "rows": 2238,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601006": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600362": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh605117": {
+      "rows": 1355,
+      "start": "2021-04-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300014": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001280": {
+      "rows": 234,
+      "start": "2025-12-03",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601800": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688271": {
+      "rows": 1029,
+      "start": "2022-08-22",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600585": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000408": {
+      "rows": 2265,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601825": {
+      "rows": 1272,
+      "start": "2021-08-19",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600905": {
+      "rows": 1321,
+      "start": "2021-06-10",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600674": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002736": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000958": {
+      "rows": 2281,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601727": {
+      "rows": 2252,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600029": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600089": {
+      "rows": 2296,
+      "start": "2017-06-09",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301660": {
+      "rows": 29,
+      "start": "2026-10-13",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600026": {
+      "rows": 2297,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600584": {
+      "rows": 2289,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000895": {
+      "rows": 2287,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688808": {
+      "rows": 141,
+      "start": "2026-04-24",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600487": {
+      "rows": 2282,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601838": {
+      "rows": 2134,
+      "start": "2018-01-31",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603296": {
+      "rows": 796,
+      "start": "2023-08-08",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301308": {
+      "rows": 1040,
+      "start": "2022-08-05",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001232": {
+      "rows": 73,
+      "start": "2026-08-04",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600010": {
+      "rows": 2293,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688361": {
+      "rows": 851,
+      "start": "2023-05-19",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600893": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601689": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002128": {
+      "rows": 2225,
+      "start": "2017-08-14",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh605499": {
+      "rows": 1331,
+      "start": "2021-05-27",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300015": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601991": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002230": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601077": {
+      "rows": 1714,
+      "start": "2019-10-29",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601012": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002311": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601698": {
+      "rows": 1795,
+      "start": "2019-06-28",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600489": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002600": {
+      "rows": 2248,
+      "start": "2017-08-09",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601916": {
+      "rows": 1688,
+      "start": "2019-11-26",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002027": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601186": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002028": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600039": {
+      "rows": 2290,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603893": {
+      "rows": 1648,
+      "start": "2020-02-07",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002648": {
+      "rows": 2300,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002602": {
+      "rows": 2200,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600436": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002001": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688036": {
+      "rows": 1730,
+      "start": "2019-09-30",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300442": {
+      "rows": 2286,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000617": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601669": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600023": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600115": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001965": {
+      "rows": 2160,
+      "start": "2017-12-25",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002241": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000425": {
+      "rows": 2279,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000657": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600236": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600377": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600988": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600600": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301377": {
+      "rows": 969,
+      "start": "2022-11-22",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000807": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600522": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688498": {
+      "rows": 948,
+      "start": "2022-12-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600066": {
+      "rows": 2301,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301165": {
+      "rows": 970,
+      "start": "2022-11-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603195": {
+      "rows": 1649,
+      "start": "2020-02-06",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600160": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600803": {
+      "rows": 2262,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601018": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300759": {
+      "rows": 1894,
+      "start": "2019-01-28",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002179": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600875": {
+      "rows": 2297,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002460": {
+      "rows": 2301,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601127": {
+      "rows": 2298,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688126": {
+      "rows": 1588,
+      "start": "2020-04-20",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600958": {
+      "rows": 2286,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688146": {
+      "rows": 865,
+      "start": "2023-04-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001872": {
+      "rows": 2141,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000625": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600415": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002353": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601298": {
+      "rows": 1893,
+      "start": "2019-01-21",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001979": {
+      "rows": 2286,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002281": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300866": {
+      "rows": 1513,
+      "start": "2020-08-24",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000708": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002422": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688187": {
+      "rows": 1259,
+      "start": "2021-09-07",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000301": {
+      "rows": 2184,
+      "start": "2017-10-09",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600482": {
+      "rows": 2281,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000977": {
+      "rows": 2290,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002156": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600233": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688249": {
+      "rows": 861,
+      "start": "2023-05-05",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688702": {
+      "rows": 769,
+      "start": "2023-09-14",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688396": {
+      "rows": 1634,
+      "start": "2020-02-27",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000938": {
+      "rows": 2297,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600009": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301526": {
+      "rows": 702,
+      "start": "2023-12-26",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600027": {
+      "rows": 2291,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688183": {
+      "rows": 1392,
+      "start": "2021-02-25",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601788": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601607": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301200": {
+      "rows": 1148,
+      "start": "2022-02-28",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600048": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688585": {
+      "rows": 1474,
+      "start": "2020-09-28",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600673": {
+      "rows": 2150,
+      "start": "2017-11-27",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688729": {
+      "rows": 334,
+      "start": "2025-07-08",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002653": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000988": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601808": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688818": {
+      "rows": 187,
+      "start": "2026-02-10",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300857": {
+      "rows": 1533,
+      "start": "2020-07-27",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601168": {
+      "rows": 2297,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688469": {
+      "rows": 858,
+      "start": "2023-05-10",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000630": {
+      "rows": 2292,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600350": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603228": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600801": {
+      "rows": 2300,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000975": {
+      "rows": 2282,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603256": {
+      "rows": 1780,
+      "start": "2019-07-19",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688525": {
+      "rows": 941,
+      "start": "2022-12-30",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz301638": {
+      "rows": 245,
+      "start": "2025-11-18",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688783": {
+      "rows": 260,
+      "start": "2025-10-28",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000768": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601901": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002466": {
+      "rows": 2277,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600118": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz002202": {
+      "rows": 2296,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688009": {
+      "rows": 1779,
+      "start": "2019-07-22",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz000596": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz300054": {
+      "rows": 2299,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600196": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh688002": {
+      "rows": 1779,
+      "start": "2019-07-22",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sz001309": {
+      "rows": 1065,
+      "start": "2022-07-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh603799": {
+      "rows": 2290,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh600885": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    },
+    "sh601618": {
+      "rows": 2302,
+      "start": "2017-06-01",
+      "end": "2026-11-20",
+      "source": "tencent",
+      "adjust": "day"
+    }
+  },
+  "updated_at": "2026-11-22 18:06:42"
+}

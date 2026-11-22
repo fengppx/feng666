@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pydeps/
+wheels/
+.tmp/
+
+# 行情缓存较大（约 30 MB × 300 只），不入库；用 scripts/download_data.py 复现
+data/raw/*.csv
+data/processed/
+!data/raw/universe.csv
+!data/raw/_manifest.json
+
+# 运行产物：保留图表与指标表，忽略日志
+output/logs/
+output/report/~$*
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
