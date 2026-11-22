@@ -22,7 +22,6 @@ from qlab.viz.chart import (
     COLORS,
     Chart,
     format_pct,
-    month_ticks,
     nice_ticks,
     year_ticks,
 )

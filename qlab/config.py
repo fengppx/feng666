@@ -115,7 +115,7 @@ FACTOR_POOL: dict[str, dict[str, Any]] = {
     "max_ret_20": {"family": "lottery", "lookback": 20, "direction": -1,
                    "desc": "20 日最大单日涨幅（彩票偏好）"},
     "turn_20": {"family": "liquidity", "lookback": 20, "direction": -1,
-                "desc": "20 日平均换手（成交额代理，流动性/拥挤度）"},
+                "desc": "20 日平均成交量 / 250 日均量（成交拥挤度代理）"},
     "bias_60": {"family": "trend", "lookback": 60, "direction": -1,
                 "desc": "收盘价相对 60 日均线偏离度"},
     "rsi_14": {"family": "trend", "lookback": 14, "direction": -1,

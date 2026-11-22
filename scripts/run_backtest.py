@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import json
 import sys
 import time
 from pathlib import Path
@@ -20,11 +21,10 @@ if str(ROOT) not in sys.path:
 
 import pandas as pd  # noqa: E402
 
-from qlab.analytics.metrics import DEFAULT_SEGMENTS, perf_metrics  # noqa: E402
+from qlab.analytics.metrics import perf_metrics  # noqa: E402
 from qlab.analytics.report import ResultExporter  # noqa: E402
 from qlab.backtest import PortfolioBacktester  # noqa: E402
 from qlab.config import (  # noqa: E402
-    AppConfig,
     BacktestConfig,
     DataConfig,
     StrategyConfig,
@@ -82,6 +82,20 @@ def main() -> int:
     args = parse_args()
     t0 = time.time()
     data_cfg, bt_cfg, strat_cfg = build_configs(args)
+
+    # 0) 配置快照：把本次运行的全部参数落盘，便于复现与答辩追溯
+    snapshot = {
+        "run_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "data": dataclasses.asdict(data_cfg),
+        "backtest": dataclasses.asdict(bt_cfg),
+        "strategy": dataclasses.asdict(strat_cfg),
+        "cli_args": vars(args),
+    }
+    snapshot_path = ROOT / "output" / "tables" / "config.json"
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_path.write_text(
+        json.dumps(snapshot, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
 
     # 1) 数据
     portal = DataPortal(data_cfg)

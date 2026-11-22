@@ -7,7 +7,6 @@ Web 看板（json）。
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
 from pathlib import Path
 
 import numpy as np
@@ -208,11 +207,6 @@ class ResultExporter:
     # ------------------------------------------------------------------
     def save_markdown(self, result, strategy, metrics: pd.DataFrame) -> Path:
         """生成 Markdown 摘要，方便直接贴进 README / 报告。"""
-        def pct(v, d=2):
-            if isinstance(v, str):
-                return v
-            return "—" if pd.isna(v) else f"{v * 100:.{d}f}%"
-
         lines = ["# 回测结果摘要", ""]
         lines.append(f"回测区间：{result.nav.index[0]:%Y-%m-%d} ~ {result.nav.index[-1]:%Y-%m-%d}，"
                      f"基准：{result.benchmark_name}")

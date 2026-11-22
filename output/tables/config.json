@@ -1,0 +1,66 @@
+{
+  "run_at": "2026-11-22 23:26:18",
+  "data": {
+    "fetch_start": "2017-06-01",
+    "fetch_end": null,
+    "universe_size": 300,
+    "benchmark": "sh000300",
+    "benchmark_name": "沪深300",
+    "extra_benchmarks": {
+      "sh000905": "中证500"
+    },
+    "adjust": "day",
+    "provider": "sina",
+    "request_workers": 6,
+    "request_retry": 3,
+    "request_pause": 0.12
+  },
+  "backtest": {
+    "start": "2019-01-01",
+    "end": null,
+    "is_end": "2022-12-31",
+    "initial_cash": 1000000.0,
+    "top_n": 30,
+    "rebalance": "ME",
+    "commission_rate": 0.00025,
+    "min_commission": 5.0,
+    "slippage": 0.0005,
+    "lot_size": 100,
+    "stamp_duty_schedule": [
+      [
+        "1990-01-01",
+        0.001
+      ],
+      [
+        "2023-08-28",
+        0.0005
+      ]
+    ],
+    "risk_free_rate": 0.015,
+    "trading_days": 252
+  },
+  "strategy": {
+    "factor_select_k": 5,
+    "min_abs_icir": 0.15,
+    "max_factor_corr": 0.75,
+    "weighting": "icir",
+    "winsorize_quantile": 0.02,
+    "max_weight": 0.08,
+    "timing_enabled": true,
+    "timing_ma_window": 120,
+    "timing_low_exposure": 0.3,
+    "timing_high_exposure": 1.0
+  },
+  "cli_args": {
+    "start": "2019-01-01",
+    "end": null,
+    "is_end": "2022-12-31",
+    "top_n": 30,
+    "factor_k": 5,
+    "weighting": "icir",
+    "no_timing": false,
+    "require_start": "2017-09-01",
+    "no_ablation": false,
+    "capital": 1000000.0
+  }
+}

@@ -91,6 +91,8 @@ class MultiFactorStrategy:
             2. 贪心加入因子，若与已选因子截面相关性 >= max_factor_corr
                则跳过（避免 vol_60 与 hl_range_20 这类同质因子重复计权重）。
         """
+        # 用 2023-01-01 之前的全部可得数据估计 IC（含 2017-06 起的因子预热段），
+        # 样本外数据完全不参与；panel_is 已在调用方按 is_end 切好。
         reb_dates = pd.DatetimeIndex(self.rebalance_dates(panel_is.dates))
         pool = list(FACTOR_POOL)
         factors = compute_factors(panel_is, pool)
@@ -190,6 +192,7 @@ class MultiFactorStrategy:
 
         rows = pd.DataFrame(0.0, index=pd.DatetimeIndex(reb_dates, name="date"), columns=symbols)
         score_log = {}
+        capped_days = 0
         for d in reb_dates:
             s = score.loc[d]
             # 只投资当日有有效价格、且因子值非空的标的
@@ -199,25 +202,25 @@ class MultiFactorStrategy:
             picks = s[valid].nlargest(min(self.bt_cfg.top_n, int(valid.sum()))).index
             score_log[d] = s[valid].nlargest(10).to_dict()
             exposure_d = float(exposure.loc[d])
-            weight = exposure_d / len(picks)
-            if weight > self.cfg.max_weight:
-                weight = self.cfg.max_weight
+            raw_weight = exposure_d / len(picks)
+            # 单票上限硬约束：超过上限时宁可留现金，也不越限加仓
+            weight = min(raw_weight, self.cfg.max_weight)
+            if raw_weight > self.cfg.max_weight + 1e-12:
+                capped_days += 1
             rows.loc[d, picks] = weight
 
-        # 若个股数受 max_weight 限制，剩余现金按比例再分配一次（保持仓位不浪费）
-        gross = rows.sum(axis=1)
-        for d in rows.index:
-            exp = float(exposure.loc[d])
-            if gross.loc[d] <= 0:
-                continue
-            if gross.loc[d] > 0 and abs(gross.loc[d] - exp) > 1e-9:
-                rows.loc[d] = rows.loc[d] * (exp / gross.loc[d])
+        # 去掉因有效标的不足而没有生成目标的调仓日（避免被引擎误读为清仓）
+        rows = rows.loc[rows.sum(axis=1) > 0]
+
+        self.diagnostics["capped_days"] = capped_days
 
         self.diagnostics["exposure"] = {str(k.date()): float(v) for k, v in exposure.items()}
         self.diagnostics["score_log"] = {
             str(k.date()): {sym: round(float(v), 4) for sym, v in vals.items()}
             for k, vals in score_log.items()
         }
-        log.info("生成 %d 个调仓日目标权重，平均股票仓位 %.0f%%",
-                 len(rows), 100.0 * float(rows.sum(axis=1).mean()))
+        avg_exposure = float(rows.sum(axis=1).mean()) if len(rows) else 0.0
+        log.info("生成 %d 个调仓日目标权重，平均股票仓位 %.0f%%%s",
+                 len(rows), 100.0 * avg_exposure,
+                 f"，{capped_days} 个调仓日触及单票上限" if capped_days else "")
         return rows

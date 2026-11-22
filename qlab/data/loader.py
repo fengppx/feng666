@@ -282,8 +282,11 @@ class DataPortal:
         # 交易日历 = 所有标的有行情的日期并集
         bench_sym = self.cfg.benchmark
         bench = cache.load_prices(bench_sym)
+        bench_name = self.cfg.benchmark_name
         if bench is None:
             log.warning("缺少基准 %s 缓存，改用股票池等权净值", bench_sym)
+            # 明确标注为回落基准，避免报告里把等权净值当成沪深 300
+            bench_name = f"{self.cfg.benchmark_name}（缓存缺失，回落为股票池等权）"
             bench = pd.DataFrame(index=panel["close"].index)
 
         index = panel["close"].index.union(bench.index)
@@ -313,7 +316,7 @@ class DataPortal:
             close=panel["close"],
             volume=panel["volume"],
             benchmark=bench_close,
-            benchmark_name=self.cfg.benchmark_name,
+            benchmark_name=bench_name,
             names={s: names.get(s, s) for s in panel["close"].columns},
             extra_benchmarks=extras,
         )

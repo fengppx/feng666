@@ -14,22 +14,20 @@
 
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
 from docx import Document
-from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
 from qlab.config import (
-    FACTOR_POOL,
     FIGURE_DIR,
-    OUTPUT_DIR,
     PROJECT_ROOT,
     REPORT_DIR,
     TABLE_DIR,
@@ -219,6 +217,15 @@ def build_technical_report(output_dir: str | Path | None = None,
     timing_ma = int(meta.get("timing_ma", 120))
     timing_low = float(meta.get("timing_low", 0.30))
 
+    # 单元测试数量从 tests/ 目录实时统计，避免文档里写死的数字过期
+    n_tests = sum(
+        len([
+            node for node in ast.walk(ast.parse(p.read_text(encoding="utf-8")))
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+        ])
+        for p in sorted((PROJECT_ROOT / "tests").glob("test_*.py"))
+    )
+
     doc = Document()
     # 页面设置：A4 纵向，页边距 2.2cm
     section = doc.sections[0]
@@ -339,7 +346,7 @@ def build_technical_report(output_dir: str | Path | None = None,
         {"模块": "qlab.analytics", "职责": "输出：绩效指标、样本内外对比、Excel/Markdown 导出"},
         {"模块": "qlab.viz", "职责": "展示：Pillow 绘图（净值/回撤/热力图/因子 IC）"},
         {"模块": "qlab.webapp", "职责": "展示：标准库 HTTP 服务 + 前端看板，支持在线重跑回测"},
-        {"模块": "tests/", "职责": "23 个单元测试：撮合时点、费用记账、指标公式、因子数学"},
+        {"模块": "tests/", "职责": f"{n_tests} 个单元测试：撮合时点、费用记账、指标公式、因子数学、权重约束"},
     ]), widths=[3.4, 12.0])
 
     _heading(doc, "3.1 回测内核的三个关键约定", 2)
@@ -360,7 +367,7 @@ def build_technical_report(output_dir: str | Path | None = None,
 
     _heading(doc, "4.2 候选因子与筛选", 2)
     _para(doc,
-          "候选池共 12 个因子，覆盖动量、反转、波动率、流动性与高阶矩五类。"
+          "候选池共 12 个因子，覆盖动量、反转、波动率、流动性、趋势与高阶矩等类别。"
           "筛选规则分两步：(1) 按样本内 ICIR 绝对值降序；(2) 贪心加入，若与已选因子"
           "截面相关性超过 0.75 则跳过，避免同质因子重复计权。下表给出全部候选因子的"
           "样本内 IC 检验结果与最终权重。", indent=0.74)
@@ -399,8 +406,9 @@ def build_technical_report(output_dir: str | Path | None = None,
     _bullet(doc, f"持仓数量：综合得分前 {top_n} 只，等权；单票权重上限 8%。")
     _bullet(doc, f"择时规则：沪深 300 收盘价 > {timing_ma} 日均线 → 满仓；否则仓位降至 "
                  f"{timing_low * 100:.0f}%。该规则只影响总仓位，不改变选股结果。")
-    _bullet(doc, "样本隔离：因子选择、方向、权重与时序参数全部只用 2019-2022 样本内数据确定，"
-                 "2023 年之后的数据只用于检验，不参与任何决策。")
+    _bullet(doc, "样本隔离：因子选择、方向、权重与时序参数全部只用 2023-01-01 之前的数据确定"
+                 "（2017-06 起，含因子滚动窗口的预热段）；2023 年之后的数据只用于样本外检验，"
+                 "不参与任何决策。")
 
     # ---------------- 5 回测设置与结果 ----------------
     _heading(doc, "五、回测设置与结果", 1)
@@ -581,7 +589,7 @@ def build_technical_report(output_dir: str | Path | None = None,
         "跑回测：python scripts/run_backtest.py（输出指标、图表、参数敏感性实验）",
         "启动看板：python -m qlab web，浏览器打开 http://127.0.0.1:8000 可在线改参数重跑",
         "生成报告：python -m qlab report（即本文档）",
-        "运行测试：python -m unittest discover -s tests（23 个用例）",
+        f"运行测试：python -m unittest discover -s tests（{n_tests} 个用例）",
     ], 1):
         _para(doc, f"{i}. {step}", size=10)
 

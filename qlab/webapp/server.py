@@ -22,7 +22,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from qlab.config import AppConfig, BacktestConfig, DataConfig, StrategyConfig
+from qlab.config import BacktestConfig, DataConfig, StrategyConfig
 from qlab.logging_utils import get_logger
 
 log = get_logger("qlab.web")

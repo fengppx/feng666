@@ -89,7 +89,7 @@ qlab-quant/
 ├── scripts/
 │   ├── download_data.py       # 一键抓取行情
 │   └── run_backtest.py        # 一键回测流水线
-├── tests/                     # 23 个单元测试
+├── tests/                     # 26 个单元测试（撮合/费用/指标/因子/权重约束）
 ├── data/raw/                  # 行情缓存（不入库，可重新抓取）
 ├── output/{tables,figures,report,logs}/
 ├── requirements.txt
@@ -130,6 +130,7 @@ qlab-quant/
 | `output/tables/backtest_result.xlsx` | 以上内容的 Excel 汇总（答辩展示用） |
 | `output/tables/result_summary.json` | Web 看板与报告读取的结构化结果 |
 | `output/tables/ablation.csv` | 参数敏感性 / 消融实验结果（关闭择时、换持仓数、季度调仓等） |
+| `output/tables/config.json` | 本次运行的完整参数快照（数据、回测、策略配置），用于复现与追溯 |
 | `output/figures/*.png` | 净值曲线、回撤、月度热力图、因子 IC、仓位、架构图 |
 | `output/report/项目技术报告.docx` | 自动生成的技术报告（`python -m qlab report`） |
 

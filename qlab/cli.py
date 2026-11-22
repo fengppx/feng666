@@ -11,11 +11,9 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from qlab import __version__
 from qlab.config import (
-    DATA_DIR,
     FIGURE_DIR,
     OUTPUT_DIR,
     RAW_DIR,
@@ -49,14 +47,19 @@ def _data(args) -> int:
 def _backtest(args) -> int:
     import runpy
 
-    sys.argv = [str(Path("scripts/run_backtest.py").resolve())]
+    from qlab.config import PROJECT_ROOT
+
+    script = PROJECT_ROOT / "scripts" / "run_backtest.py"
+    if not script.exists():
+        raise FileNotFoundError(f"找不到回测脚本：{script}")
+    sys.argv = [str(script)]
     if args.top_n:
         sys.argv += ["--top-n", str(args.top_n)]
     if args.no_timing:
         sys.argv.append("--no-timing")
     if args.no_ablation:
         sys.argv.append("--no-ablation")
-    runpy.run_path("scripts/run_backtest.py", run_name="__main__")
+    runpy.run_path(str(script), run_name="__main__")
     return 0
 
 

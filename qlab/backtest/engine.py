@@ -210,7 +210,14 @@ class PortfolioBacktester:
 
         trades_df = pd.DataFrame(trades)
         if not trades_df.empty:
-            trades_df = trades_df.sort_values(["date", "side"]).reset_index(drop=True)
+            # 同一天先卖后买，成交明细按真实执行顺序排列
+            side_order = trades_df["side"].map({"SELL": 0, "BUY": 1}).fillna(2)
+            trades_df = (
+                trades_df.assign(_order=side_order)
+                .sort_values(["date", "_order"])
+                .drop(columns="_order")
+                .reset_index(drop=True)
+            )
 
         if skipped:
             log.info("调仓期间因停牌跳过 %d 笔标的调整", skipped)
