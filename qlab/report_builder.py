@@ -244,7 +244,7 @@ def build_technical_report(output_dir: str | Path | None = None,
           space_after=8, color=PRIMARY)
     _para(doc, "课程：量化交易　|　形式：小组项目（4 人）", size=11,
           align=WD_ALIGN_PARAGRAPH.CENTER, space_after=4)
-    _para(doc, "组别：____　|　组长：____　|　组员：____", size=11,
+    _para(doc, "组别：L 组　|　组长：庄昊钊　|　组员：冯培智、庄昊钊、罗胜辉、甘洺宇", size=11,
           align=WD_ALIGN_PARAGRAPH.CENTER, space_after=4)
     _para(doc, f"回测区间：{bt_cfg['start']} ~ {bt_cfg['end']}", size=11,
           align=WD_ALIGN_PARAGRAPH.CENTER, space_after=4)
