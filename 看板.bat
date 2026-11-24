@@ -3,7 +3,7 @@ cd /d "%~dp0"
 title QLab Web Dashboard
 
 if not exist ".venv\Scripts\python.exe" (
-    echo [ERROR] .venv not found. See 新手使用说明.md
+    echo [ERROR] .venv not found. See README.md
     pause
     exit /b 1
 )
