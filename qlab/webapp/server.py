@@ -109,12 +109,14 @@ class BacktestService:
             step = max(1, len(nav) // 900)
             idx = nav.index[::step]
             monthly = result.monthly_returns()
+            dd = nav / nav.cummax() - 1.0
 
             payload = {
                 "meta": {
                     "universe_size": len(panel.symbols),
                     "start": str(bt_panel.dates[0].date()),
                     "end": str(bt_panel.dates[-1].date()),
+                    "is_end": str(bt_cfg.is_end),
                     "benchmark": panel.benchmark_name,
                     "top_n": bt_cfg.top_n,
                     "weighting": strat_cfg.weighting,
@@ -125,6 +127,8 @@ class BacktestService:
                     "dates": [d.strftime("%Y-%m-%d") for d in idx],
                     "nav": [float(v) for v in nav.loc[idx]],
                     "benchmark": [float(v) for v in bench.loc[idx]],
+                    "drawdown": [float(v) for v in dd.loc[idx]],
+                    "exposure": [float(v) for v in result.exposure.loc[idx]],
                 },
                 "monthly": {
                     "years": [int(y) for y in monthly.index],
@@ -136,9 +140,11 @@ class BacktestService:
                 "trades": _clean(result.trades.tail(60).to_dict(orient="records")),
                 "holdings": [
                     {"symbol": s, "name": panel.names.get(s, s), "weight": float(w)}
-                    for s, w in result.targets.iloc[-1].nlargest(15).items() if w > 0
+                    for s, w in result.targets.iloc[-1].sort_values(ascending=False).items()
+                    if w > 0
                 ] if not result.targets.empty else [],
                 "rebalances": len(result.rebalance_dates),
+                "rebalance_dates": [d.strftime("%Y-%m-%d") for d in result.rebalance_dates],
             }
             self.last_result = payload
             log.info("Web 端回测完成：Top%d / %s / 择时=%s → 累计收益 %.1f%%",
@@ -149,13 +155,16 @@ class BacktestService:
 
 # ----------------------------------------------------------------------
 def _clean(obj):
-    """把 NaN / numpy 类型转成 JSON 可序列化对象。"""
+    """把 NaN / numpy / pandas 类型转成 JSON 可序列化对象。"""
     import numpy as np
+    import pandas as pd
 
     if isinstance(obj, dict):
         return {str(k): _clean(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
         return [_clean(v) for v in obj]
+    if isinstance(obj, pd.Timestamp):
+        return obj.strftime("%Y-%m-%d")
     if isinstance(obj, (np.integer,)):
         return int(obj)
     if isinstance(obj, (np.floating, float)):
