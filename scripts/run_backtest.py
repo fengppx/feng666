@@ -99,7 +99,7 @@ def main() -> int:
 
     # 1) 数据
     portal = DataPortal(data_cfg)
-    universe = portal.ensure_universe()
+    portal.ensure_universe()
     panel = portal.load(require_start=args.require_start)
     bt_panel = panel.slice(bt_cfg.start, bt_cfg.end)
     panel_is = panel.slice(None, bt_cfg.is_end)
@@ -137,7 +137,8 @@ def main() -> int:
             "factor_k": strat_cfg.factor_select_k,
             "timing_ma": strat_cfg.timing_ma_window,
             "timing_low": strat_cfg.timing_low_exposure,
-            "provider": "tencent(qfq) / sina(universe)",
+            "provider": data_cfg.provider,
+            "adjust": data_cfg.adjust,
             "names": panel.names,
         },
         rf=bt_cfg.risk_free_rate,

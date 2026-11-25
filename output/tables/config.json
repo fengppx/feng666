@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-22 23:26:18",
+  "run_at": "2026-11-26 01:08:21",
   "data": {
     "fetch_start": "2017-06-01",
     "fetch_end": null,
@@ -10,7 +10,7 @@
       "sh000905": "中证500"
     },
     "adjust": "day",
-    "provider": "sina",
+    "provider": "tencent",
     "request_workers": 6,
     "request_retry": 3,
     "request_pause": 0.12
@@ -60,7 +60,7 @@
     "weighting": "icir",
     "no_timing": false,
     "require_start": "2017-09-01",
-    "no_ablation": false,
+    "no_ablation": true,
     "capital": 1000000.0
   }
 }

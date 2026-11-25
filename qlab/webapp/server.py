@@ -121,6 +121,8 @@ class BacktestService:
                     "top_n": bt_cfg.top_n,
                     "weighting": strat_cfg.weighting,
                     "timing": strat_cfg.timing_enabled,
+                    "provider": self.data_cfg.provider,
+                    "adjust": self.data_cfg.adjust,
                 },
                 "metrics": {k: _clean(v) for k, v in metrics.items()},
                 "series": {

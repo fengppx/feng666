@@ -301,10 +301,7 @@ class PortfolioBacktester:
         trade_list: list[dict] = []
         total_turnover_value = 0.0
         for sym in list(shares):
-            if sym in target_shares:
-                want = target_shares[sym]
-            else:
-                want = 0  # 不在目标组合中
+            want = target_shares.get(sym, 0)  # 不在目标组合中则清零
             cur = shares[sym]
             if cur <= want or sym not in tradable:
                 continue

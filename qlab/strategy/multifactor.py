@@ -96,7 +96,7 @@ class MultiFactorStrategy:
         reb_dates = pd.DatetimeIndex(self.rebalance_dates(panel_is.dates))
         pool = list(FACTOR_POOL)
         factors = compute_factors(panel_is, pool)
-        table, ics = evaluate_factors(
+        table, _ics = evaluate_factors(
             panel_is, reb_dates, horizon=21, pool=pool, factors=factors
         )
         self.ic_table = table

@@ -309,8 +309,7 @@ class DataPortal:
             bench = pd.DataFrame(index=panel["close"].index)
 
         index = panel["close"].index.union(bench.index)
-        for k in panel:
-            panel[k] = panel[k].reindex(index)
+        panel = {k: v.reindex(index) for k, v in panel.items()}
         # 停牌估值用前收盘，但 open 缺失保持 NaN 以便回测禁止成交
         panel["close"] = panel["close"].ffill()
         panel["high"] = panel["high"].ffill()
