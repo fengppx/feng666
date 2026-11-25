@@ -35,7 +35,7 @@ def _data(args) -> int:
         request_workers=args.workers,
         request_pause=args.pause,
     )
-    portal = DataPortal(cfg)
+    portal = DataPortal(cfg, provider=args.provider)
     portal.ensure_universe(force=args.force)
     portal.download(force=args.force, min_rows=1500, start_before="2017-09-01")
     portal.download_benchmarks()
@@ -109,6 +109,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true")
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--pause", type=float, default=0.5)
+    p.add_argument("--provider", default="tencent",
+                   choices=["tencent", "sina", "akshare", "baostock", "yfinance"],
+                   help="行情数据源（默认腾讯；akshare/baostock 需先安装）")
     p.set_defaults(func=_data)
 
     p = sub.add_parser("backtest", help="跑回测流水线")

@@ -7,7 +7,9 @@ Pillow>=10.0
 openpyxl>=3.1
 python-docx>=1.1
 
-# 可选数据源（本项目默认使用内置的腾讯/新浪适配器，无需额外安装）
-# akshare>=1.12      # A 股行情、宏观、基本面
-# baostock>=0.8      # A 股日频/分钟频
-# yfinance>=0.2      # 美股与全球市场
+# 免费行情数据源（课程文件列出的 akshare / baostock）
+# 默认流程走内置的腾讯 K 线 + 新浪股票池，不装这两个也能跑；
+# 装上之后即可 python scripts/download_data.py --provider akshare|baostock
+akshare>=1.20
+baostock>=0.9
+# yfinance>=0.2      # 美股与全球市场，A 股回测用不到

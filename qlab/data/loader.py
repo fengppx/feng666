@@ -100,16 +100,35 @@ class DataPortal:
     # 股票池
     # ------------------------------------------------------------------
     def ensure_universe(self, force: bool = False) -> pd.DataFrame:
+        """准备股票池。
+
+        优先顺序：本地缓存 → 当前数据源自带的股票池接口（akshare 有）→ 新浪列表。
+        baostock 没有市值接口，无法按市值排序，因此自动回退到新浪。
+        """
         if not force:
             cached = cache.load_universe()
             if cached is not None and len(cached) >= self.cfg.universe_size * 0.8:
                 self.universe = cached
                 log.info("使用本地股票池缓存：%d 只", len(cached))
                 return cached
-        from qlab.data.providers.sina import fetch_universe
 
-        uni = fetch_universe(self.cfg.universe_size + 40)  # 多抓一些用于过滤
-        uni = uni.head(self.cfg.universe_size).reset_index(drop=True)
+        uni = None
+        fetcher = getattr(self._provider, "fetch_universe", None)
+        if callable(fetcher):
+            try:
+                uni = fetcher(self.cfg.universe_size)
+                log.info("股票池来自数据源 %s：%d 只", self.provider_name, len(uni))
+            except Exception as exc:
+                log.warning("数据源 %s 的股票池接口不可用（%s），改用新浪列表",
+                            self.provider_name, exc)
+                uni = None
+
+        if uni is None or len(uni) == 0:
+            from qlab.data.providers.sina import fetch_universe
+
+            uni = fetch_universe(self.cfg.universe_size + 40)  # 多抓一些用于过滤
+            uni = uni.head(self.cfg.universe_size).reset_index(drop=True)
+
         cache.save_universe(uni)
         self.universe = uni
         return uni

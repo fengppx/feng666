@@ -20,6 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 report = ["python-docx>=1.1"]
+data = ["akshare>=1.20", "baostock>=0.9"]
 dev = ["pytest>=8.0"]
 
 [project.scripts]

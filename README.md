@@ -104,9 +104,30 @@ tests/          26 个单元测试
 
 ## 数据来源与复现
 
-行情来自腾讯的日线接口，股票池取自新浪的行情列表接口，两者均为公开免费接口，无需注册。
-接口对高频访问有限流，抓取脚本采用单线程并在请求之间留出间隔，同时支持多轮补抓。此外也编写了
-akshare、baostock 与 yfinance 的适配器，安装对应依赖后可通过 `--provider` 切换，默认使用腾讯。
+行情默认来自腾讯的日线接口，股票池取自新浪的行情列表接口，两者公开免费、无需注册。
+接口对高频访问有限流，抓取脚本采用单线程并在请求之间留出间隔，同时支持多轮补抓。
+
+除默认源外，还接入了课程文件列出的两个免费数据源：
+
+| 数据源 | 用途 | 备注 |
+| --- | --- | --- |
+| akshare | 日线、指数、股票池 | 走东方财富，限流时自动切新浪备用通道 |
+| baostock | 日线、指数 | 免注册，每只约 10 秒，300 只约 50 分钟 |
+
+切换方式：
+
+```bash
+python scripts/download_data.py --provider akshare --size 300
+python scripts/download_data.py --provider baostock --size 300
+python -m qlab data --provider baostock --size 100
+```
+
+两个源都做了口径对齐：成交量统一换算为「手」，价格统一为不复权，取到的收盘价与腾讯源逐日一致。
+想先确认能不能连通，跑一条命令即可：
+
+```bash
+python scripts/check_sources.py        # 逐个测试已安装的数据源
+```
 
 数据保存在 `data/raw/`，约 30MB，已加入 `.gitignore`，因此克隆仓库后需要先执行一次抓取。
 
