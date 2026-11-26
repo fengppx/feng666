@@ -4,6 +4,7 @@
     backtest   跑完整回测流水线（含图表与结果落盘）
     web        启动 Web 看板
     report     生成 Word 技术报告
+    check      抽样校验本地数据与另一数据源是否一致
     info       查看当前数据与配置概况
 """
 
@@ -78,6 +79,21 @@ def _report(args) -> int:
     return 0
 
 
+def _check(args) -> int:
+    """抽样比对本地缓存与另一数据源的收盘价。"""
+    from qlab.data.crosscheck import compare
+
+    table, summary = compare(n=args.sample, provider=args.provider, tol=args.tol)
+    if table.empty:
+        print("没有可校验的标的，请先抓取行情")
+        return 1
+    print(table.to_string(index=False))
+    print()
+    print(f"校验源 {summary['provider']}：抽查 {summary['checked']} 只，"
+          f"一致 {summary['consistent']} 只，最大相对偏差 {summary['max_rel_diff'] * 100:.4f}%")
+    return 0 if summary["failed"] == 0 else 1
+
+
 def _info(_args) -> int:
     from qlab.data import cache
 
@@ -128,6 +144,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("report", help="生成 Word 技术报告")
     p.add_argument("--out", default=None)
     p.set_defaults(func=_report)
+
+    p = sub.add_parser("check", help="抽样校验本地数据与另一数据源是否一致")
+    p.add_argument("--sample", type=int, default=15, help="抽样标的数量")
+    p.add_argument("--provider", default="baostock",
+                   choices=["baostock", "akshare", "tencent", "sina"],
+                   help="用作校验的数据源")
+    p.add_argument("--tol", type=float, default=0.001, help="判定一致的最大相对偏差")
+    p.set_defaults(func=_check)
 
     p = sub.add_parser("info", help="查看数据与产物概况")
     p.set_defaults(func=_info)

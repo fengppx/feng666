@@ -202,6 +202,7 @@ class DataPortal:
                         "start": str(df.index.min().date()),
                         "end": str(df.index.max().date()),
                         "source": self.provider_name,
+                        "channel": getattr(self._provider, "last_channel", None),
                         "adjust": self.cfg.adjust,
                     },
                 )

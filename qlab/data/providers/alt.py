@@ -92,6 +92,8 @@ class AkshareProvider:
         self.adjust = "" if adjust in ("day", "", None) else adjust
         self.pause = pause
         self.retry = retry
+        # 最近一次取数实际走的通道（em=东方财富 / sina=新浪），供 manifest 追溯
+        self.last_channel: str | None = None
 
     # ------------------------------------------------------------------
     def fetch_daily(self, symbol: str, start: str, end: str) -> pd.DataFrame:
@@ -107,6 +109,7 @@ class AkshareProvider:
             if raw is None or raw.empty:
                 errors.append(f"{label}：空数据")
                 continue
+            self.last_channel = "em" if label == "东方财富" else "sina"
             return self._prepare(raw, needs_volume_fix, start, end)
 
         raise RuntimeError(f"akshare 取数失败（{symbol}）：" + "；".join(errors))

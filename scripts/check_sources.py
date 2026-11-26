@@ -10,7 +10,7 @@
     python scripts/check_sources.py --start 2024-01-02 --end 2024-01-31
 
 课程文件列出的四个源里，tushare 需要 token、yfinance 覆盖美股，
-本项目接入的是 akshare 与 baostock（均免注册），另保留腾讯/新浪作为默认源。
+本项目实际使用 akshare（主源）与 baostock（校验源），腾讯/新浪保留为历史兼容与回退。
 """
 
 from __future__ import annotations

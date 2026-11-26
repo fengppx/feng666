@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 
-def get_provider(name: str = "sina", **kwargs) -> PriceProvider:
+def get_provider(name: str = "akshare", **kwargs) -> PriceProvider:
     """按名称返回数据源实例（可选源按需惰性导入）。"""
     name = name.lower()
     if name in ("sina", "sina_kline"):

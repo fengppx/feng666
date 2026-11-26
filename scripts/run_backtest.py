@@ -131,6 +131,7 @@ def main() -> int:
             "universe_requested": int(data_cfg.universe_size),
             "data_start": str(panel.dates[0].date()),
             "data_end": str(panel.dates[-1].date()),
+            "n_trading_days": int(len(panel.dates)),
             "benchmark": panel.benchmark_name,
             "is_end": bt_cfg.is_end,
             "top_n": bt_cfg.top_n,

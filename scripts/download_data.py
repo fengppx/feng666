@@ -37,7 +37,8 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=1, help="并发线程数（接口限流，勿大）")
     ap.add_argument("--pause", type=float, default=0.45, help="每次请求后的间隔（秒）")
     ap.add_argument("--rounds", type=int, default=3, help="补抓轮数")
-    ap.add_argument("--provider", default="tencent", help="数据源：tencent/akshare/baostock")
+    ap.add_argument("--provider", default="akshare",
+                    help="数据源：akshare（默认）/ baostock / tencent / sina")
     args = ap.parse_args()
 
     cfg = DataConfig(

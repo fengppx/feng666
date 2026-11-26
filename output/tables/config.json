@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-26 01:08:21",
+  "run_at": "2026-11-26 12:44:01",
   "data": {
     "fetch_start": "2017-06-01",
     "fetch_end": null,
@@ -10,7 +10,7 @@
       "sh000905": "中证500"
     },
     "adjust": "day",
-    "provider": "tencent",
+    "provider": "akshare",
     "request_workers": 6,
     "request_retry": 3,
     "request_pause": 0.12
@@ -60,7 +60,7 @@
     "weighting": "icir",
     "no_timing": false,
     "require_start": "2017-09-01",
-    "no_ablation": true,
+    "no_ablation": false,
     "capital": 1000000.0
   }
 }

@@ -49,9 +49,9 @@ class DataConfig:
     # 价格口径：day 不复权（默认，与沪深300价格指数同口径）
     # / hfq 后复权 / qfq 前复权（仅部分数据源支持）
     adjust: str = "day"
-    # 行情数据源：tencent（默认，快且稳定）/ sina / akshare / baostock / yfinance
-    # akshare 与 baostock 为课程文件列出的免费源，需先安装对应依赖
-    provider: str = "tencent"
+    # 行情数据源：akshare 为主源（课程文件列出的免费源）
+    # baostock 作独立校验源；tencent / sina 保留为历史兼容与回退；yfinance 覆盖美股
+    provider: str = "akshare"
     request_workers: int = 6          # 并发线程数（对数据站友好，勿过大）
     request_retry: int = 3
     request_pause: float = 0.12       # 每次请求后的强制间隔（秒）
