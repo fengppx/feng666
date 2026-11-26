@@ -44,7 +44,7 @@ python scripts/run_backtest.py --top-n 10 --no-ablation
 
 ```
 qlab/
-├── data/       数据接入：抓取、缓存、质量检查、面板装配
+├── data/       数据接入：抓取、缓存、质量检查、交叉校验、面板装配
 ├── factors/    因子计算：因子库、预处理、IC 与 ICIR
 ├── strategy/   策略：因子筛选、加权、择时、目标权重
 ├── backtest/   回测：撮合与费用
@@ -54,7 +54,7 @@ qlab/
 ├── config.py   参数集中定义
 └── cli.py      命令行入口
 scripts/        数据抓取与回测入口
-tests/          26 个单元测试
+tests/          34 个单元测试
 ```
 
 各层之间只通过 `MarketPanel` 与 `BacktestResult` 交换数据，更换数据源或策略时不需要改动回测部分。

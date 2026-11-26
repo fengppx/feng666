@@ -3,7 +3,7 @@
 课程文件列出的四个免费数据源里，tushare 需要注册 token，yfinance 主要覆盖美股，
 所以 A 股日频实际接的是 **akshare** 和 **baostock**，两者都免注册、免费。
 
-默认仍走腾讯（K 线）+ 新浪（股票池），因为速度快且不见限流；需要换源时：
+默认使用 akshare（主源），baostock 作校验；其余源可随时切换：
 
     python scripts/download_data.py --provider akshare
     python scripts/download_data.py --provider baostock

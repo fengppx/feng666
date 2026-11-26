@@ -125,9 +125,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true")
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--pause", type=float, default=0.5)
-    p.add_argument("--provider", default="tencent",
-                   choices=["tencent", "sina", "akshare", "baostock", "yfinance"],
-                   help="行情数据源（默认腾讯；akshare/baostock 需先安装）")
+    p.add_argument("--provider", default="akshare",
+                   choices=["akshare", "baostock", "tencent", "sina", "yfinance"],
+                   help="行情数据源（默认 akshare；baostock 作校验；tencent/sina 仅兼容）")
     p.set_defaults(func=_data)
 
     p = sub.add_parser("backtest", help="跑回测流水线")

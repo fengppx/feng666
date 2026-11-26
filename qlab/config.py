@@ -40,7 +40,7 @@ class DataConfig:
     fetch_end: str | None = None  # None 表示抓取到最近交易日
     # 股票池：按总市值从大到小取前 N 只 A 股（近似沪深 300 大市值样本）
     universe_size: int = 300
-    # 基准指数（腾讯代码）
+    # 基准指数（交易所代码，sh/sz 前缀，各数据源通用）
     benchmark: str = "sh000300"       # 沪深 300
     benchmark_name: str = "沪深300"
     extra_benchmarks: dict[str, str] = field(

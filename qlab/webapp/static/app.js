@@ -396,7 +396,7 @@ function renderMeta() {
   const adjLabel = !m.adjust || m.adjust === "day"
     ? "不复权" : (m.adjust === "qfq" ? "前复权" : "后复权");
   const rows = [
-    ["数据来源", `${m.provider || "腾讯"} 日线（${adjLabel}），股票池取自新浪行情列表`],
+    ["数据来源", `${m.provider || "akshare"} 日线（${adjLabel}），股票池取自新浪行情列表`],
     ["股票池", `${m.universe_size || "—"} 只 A 股`],
     ["基准", m.benchmark || "沪深300"],
     ["回测区间", `${m.start || "—"} ~ ${m.end || "—"}`],

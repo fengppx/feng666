@@ -8,8 +8,8 @@ openpyxl>=3.1
 python-docx>=1.1
 
 # 免费行情数据源（课程文件列出的 akshare / baostock）
-# 默认流程走内置的腾讯 K 线 + 新浪股票池，不装这两个也能跑；
-# 装上之后即可 python scripts/download_data.py --provider akshare|baostock
+# 默认流程用 akshare 抓行情、baostock 做交叉校验，两者都是必装依赖；
+# 若只想用内置的腾讯/新浪源，可删掉这两行，并加 --provider tencent 运行
 akshare>=1.20
 baostock>=0.9
 # yfinance>=0.2      # 美股与全球市场，A 股回测用不到
