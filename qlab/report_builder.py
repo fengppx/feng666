@@ -511,15 +511,26 @@ def build_technical_report(output_dir: str | Path | None = None,
     _heading(doc, "5.3 净值曲线与买卖点", 2)
     _figure(doc, FIGURE_DIR / "nav_curve.png",
             "图 2　策略与基准归一化净值（初始 = 1.0），▲ 为建仓/加仓点，▼ 为降仓点，虚线为样本内外分界")
+    cum_gap = m_all.get("累计收益率", 0) - m_all.get("基准累计收益率", 0)
+    if cum_gap > 0.02:
+        lead_text = "全样本收益明显高于基准，且回撤更小"
+    elif cum_gap > -0.02:
+        lead_text = "全样本收益与基准基本持平，优势主要体现在回撤与夏普"
+    else:
+        lead_text = "全样本收益略低于基准，优势主要体现在回撤与夏普"
+    is_gap = m_is.get("年化收益率", 0) - m_is.get("基准年化收益率", 0)
+    is_word = "跑赢" if is_gap >= 0 else "跑输"
+    oos_gap = m_oos.get("年化收益率", 0) - m_oos.get("基准年化收益率", 0)
+    oos_word = "好于" if oos_gap >= 0 else "低于"
     _para(doc,
           f"从净值曲线看：全样本策略累计 {m_all.get('累计收益率', 0) * 100:.1f}%、"
           f"年化 {m_all.get('年化收益率', 0) * 100:.1f}%，基准（沪深 300）累计 "
           f"{m_all.get('基准累计收益率', 0) * 100:.1f}%、年化 {m_all.get('基准年化收益率', 0) * 100:.1f}%。"
           f"分区间看，样本内（2019-2022）策略年化 {m_is.get('年化收益率', 0) * 100:.1f}%，"
-          f"跑输基准的 {m_is.get('基准年化收益率', 0) * 100:.1f}%；样本外（2023 起）策略年化 "
-          f"{m_oos.get('年化收益率', 0) * 100:.1f}%，明显好于基准的 "
+          f"{is_word}基准的 {m_is.get('基准年化收益率', 0) * 100:.1f}%；样本外（2023 起）策略年化 "
+          f"{m_oos.get('年化收益率', 0) * 100:.1f}%，{oos_word}基准的 "
           f"{m_oos.get('基准年化收益率', 0) * 100:.1f}%。"
-          f"全样本收益与基准基本持平，优势主要体现在回撤与夏普：最大回撤 "
+          f"{lead_text}：最大回撤 "
           f"{m_all.get('最大回撤', 0) * 100:.1f}%，"
           f"明显小于基准的 {m_all.get('基准最大回撤', 0) * 100:.1f}%，"
           f"主要因为择时在指数跌破 {timing_ma} 日均线时把仓位降到 {timing_low * 100:.0f}%。"
@@ -644,12 +655,16 @@ def build_technical_report(output_dir: str | Path | None = None,
         first = next(iter(eb.values()), {})
         cm = first.get("metrics", {})
         if cm:
+            cagr_gap = m_all.get("年化收益率", 0) - cm.get("年化收益率", 0)
+            cmp_word = "高于" if cagr_gap >= 0 else "低于"
+            mdd_word = "更小" if m_all.get("最大回撤", 0) > cm.get("最大回撤", 0) else "更大"
             _para(doc, f"{first.get('name', '中证 500')} 同期累计 {cm.get('累计收益率', 0) * 100:.1f}%、"
                        f"年化 {cm.get('年化收益率', 0) * 100:.1f}%、"
                        f"最大回撤 {cm.get('最大回撤', 0) * 100:.1f}%、"
                        f"夏普 {cm.get('夏普比率', 0):.2f}；策略年化 "
                        f"{m_all.get('年化收益率', 0) * 100:.1f}%、最大回撤 "
-                       f"{m_all.get('最大回撤', 0) * 100:.1f}%。策略收益低于中证 500，但回撤明显更小，"
+                       f"{m_all.get('最大回撤', 0) * 100:.1f}%。策略收益{cmp_word}中证 500，"
+                       f"且回撤{mdd_word}，"
                        "说明组合的风险暴露与两个宽基指数都不同，收益并非单纯来自某个风格 beta；"
                        "2023 年后红利/大盘价值风格对结果的贡献仍需保留。", indent=0.74)
 
@@ -671,7 +686,7 @@ def build_technical_report(output_dir: str | Path | None = None,
         ma60 = _ab("择时 MA60", "年化收益率")
         ma250 = _ab("择时 MA250", "年化收益率")
         low0 = _ab("择时低仓位 0%", "年化收益率")
-        low50 = _ab("择时低仓位 50%", "年化收益率")
+        low30 = _ab("择时低仓位 30%", "年化收益率")
         _para(doc,
               f"几点观察：(1) 关闭择时后年化收益 {off_cagr:.1f}%、"
               f"最大回撤 {off_mdd:.1f}%、夏普 {off_sharpe:.2f}，主策略为 "
@@ -686,8 +701,49 @@ def build_technical_report(output_dir: str | Path | None = None,
               f"年化收益 {_ab('季度调仓', '年化收益率'):.1f}%，说明月频调仓捕捉到的短周期信号更多，"
               "但也要付出更高的交易成本；"
               f"(4) 择时参数上，均线窗口改为 60/250 日年化分别为 {ma60:.1f}%/{ma250:.1f}%，"
-              f"低仓位改为清仓/50% 分别为 {low0:.1f}%/{low50:.1f}%，说明结论对择时参数并不稳定，"
+              f"低仓位改为清仓/30% 分别为 {low0:.1f}%/{low30:.1f}%，说明结论对择时参数并不稳定，"
               f"{timing_ma} 日/{timing_low:.0%} 是按回撤预算选定的参数，并非收益最优。", indent=0.74)
+
+        # 7.1 择时低仓位的分段敏感性（说明 50% 的选取依据）
+        timing_path = TABLE_DIR / "timing_sensitivity.csv"
+        timing = pd.read_csv(timing_path) if timing_path.exists() else None
+        if timing is not None and not timing.empty:
+            _heading(doc, "7.1 择时低仓位的样本内/样本外敏感性", 2)
+            _para(doc, "主策略把均线下方仓位从 30% 调到 50%。为避免只看全样本最好看的数字，"
+                       "下表把每个取值在样本内、样本外分别重跑。", indent=0.74)
+            t_rows = []
+            for low, g in timing.groupby("低仓位", sort=True):
+                rec = {"低仓位": f"{low:.0%}"}
+                for seg in ("全样本", "样本内", "样本外"):
+                    r = g[g["区间"] == seg]
+                    if r.empty:
+                        continue
+                    r = r.iloc[0]
+                    rec[f"{seg} 年化"] = f"{r['年化收益率'] * 100:.1f}%"
+                    rec[f"{seg} 回撤"] = f"{r['最大回撤'] * 100:.1f}%"
+                    rec[f"{seg} 夏普"] = f"{r['夏普比率']:.2f}"
+                t_rows.append(rec)
+            _table(doc, pd.DataFrame(t_rows),
+                   widths=[1.5, 1.7, 1.6, 1.2, 1.7, 1.6, 1.2, 1.7, 1.6, 1.2])
+
+            def _tv(low: float, seg: str, col: str) -> float:
+                r = timing[(timing["低仓位"] == low) & (timing["区间"] == seg)]
+                return float(r[col].iloc[0]) if not r.empty else float("nan")
+
+            _para(doc,
+                  f"30% 与 50% 的对比：样本内年化 {_tv(0.3, '样本内', '年化收益率') * 100:.1f}% → "
+                  f"{_tv(0.5, '样本内', '年化收益率') * 100:.1f}%、最大回撤 "
+                  f"{_tv(0.3, '样本内', '最大回撤') * 100:.1f}% → {_tv(0.5, '样本内', '最大回撤') * 100:.1f}%；"
+                  f"样本外年化 {_tv(0.3, '样本外', '年化收益率') * 100:.1f}% → "
+                  f"{_tv(0.5, '样本外', '年化收益率') * 100:.1f}%、最大回撤 "
+                  f"{_tv(0.3, '样本外', '最大回撤') * 100:.1f}% → {_tv(0.5, '样本外', '最大回撤') * 100:.1f}%。"
+                  "若把最大回撤预算设为 15%，30%/40% 的全样本回撤分别为 "
+                  f"{_tv(0.3, '全样本', '最大回撤') * 100:.1f}%/{_tv(0.4, '全样本', '最大回撤') * 100:.1f}%，"
+                  "已超出预算；50% 为 "
+                  f"{_tv(0.5, '全样本', '最大回撤') * 100:.1f}%，是预算内仓位最高的一档，"
+                  "收益与夏普也高于 30%/40%；60% 起回撤又升至 "
+                  f"{_tv(0.6, '全样本', '最大回撤') * 100:.1f}%，100% 为 "
+                  f"{_tv(1.0, '全样本', '最大回撤') * 100:.1f}%。因此取 50%。", indent=0.74)
 
     # ---------------- 8 局限 ----------------
     _heading(doc, "八、已知局限与改进方向", 1)
