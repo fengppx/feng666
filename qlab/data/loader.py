@@ -21,6 +21,17 @@ from qlab.logging_utils import get_logger
 log = get_logger("qlab.data")
 
 
+def last_completed_day() -> str:
+    """返回最近一个已收盘的日期。
+
+    盘中抓取会拿到当天的半日 K 线（只有上午数据），混进回测会污染最后一天的收益，
+    因此 15:00 之前统一取前一日。
+    """
+    now = pd.Timestamp.now()
+    day = now.normalize() if now.hour >= 15 else now.normalize() - pd.Timedelta(days=1)
+    return day.strftime("%Y-%m-%d")
+
+
 @dataclass
 class MarketPanel:
     """对齐后的行情面板。"""
@@ -158,7 +169,7 @@ class DataPortal:
         assert self.universe is not None
         uni = self.universe
         syms = symbols or list(uni["symbol"])
-        end = self.cfg.fetch_end or pd.Timestamp.today().strftime("%Y-%m-%d")
+        end = self.cfg.fetch_end or last_completed_day()
         start = self.cfg.fetch_start
 
         def needs_refresh(sym: str) -> bool:
@@ -217,7 +228,7 @@ class DataPortal:
     def download_benchmarks(self, symbols: list[str] | None = None) -> dict[str, int]:
         """抓取基准指数（沪深 300 等），与个股共用缓存格式。"""
         syms = symbols or [self.cfg.benchmark, *list(self.cfg.extra_benchmarks)]
-        end = self.cfg.fetch_end or pd.Timestamp.today().strftime("%Y-%m-%d")
+        end = self.cfg.fetch_end or last_completed_day()
         out: dict[str, int] = {}
         for sym in syms:
             try:
