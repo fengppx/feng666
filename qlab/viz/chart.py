@@ -218,8 +218,23 @@ class Chart:
             self.pixel_text((l + r) / 2, b + 38, x_label, tick_size + 1,
                             COLORS["text"], anchor="mt")
         if y_label:
-            self.pixel_text(l - 58, (t + b) / 2, y_label, tick_size + 1,
-                            COLORS["text"], anchor="mm")
+            self.vtext(max(14, l - 62), (t + b) / 2, y_label, tick_size + 1, COLORS["text"])
+
+    def vtext(self, x: float, y: float, s: str, size: int = 13,
+              color: str = COLORS["text"]) -> None:
+        """竖排文字（逆时针 90°），用于 y 轴标题，避免与刻度标签重叠。"""
+        f = self.font(size)
+        box = self.draw.textbbox((0, 0), s, font=f)
+        w, h = box[2] - box[0], box[3] - box[1]
+        pad = 4 * self.scale
+        layer = Image.new("RGBA", (w + 2 * pad, h + 2 * pad), (0, 0, 0, 0))
+        ImageDraw.Draw(layer).text((pad - box[0], pad - box[1]), s, font=f, fill=color)
+        layer = layer.rotate(90, expand=True)
+        self.img.paste(
+            layer,
+            (int(x * self.scale - layer.width / 2), int(y * self.scale - layer.height / 2)),
+            layer,
+        )
 
     def title(self, s: str, subtitle: str | None = None) -> None:
         l, t, r, _ = self.plot_box

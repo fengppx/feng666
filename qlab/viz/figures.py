@@ -95,10 +95,36 @@ def fig_nav_curve(
             label = "加仓" if gross.loc[d] > gross.shift(1).loc[d] else "降仓"
             marks.append((i, label, "up" if label == "加仓" else "down"))
 
-    for i, label, kind in marks:
-        ch.marker(i, y_nav[i], kind, 6.5, COLORS["accent"] if kind == "up" else COLORS["green"])
-        ch.text(i, y_nav[i] + (pad * 0.45 if kind == "up" else -pad * 0.45),
-                label, 11, COLORS["gray"], anchor="mb" if kind == "up" else "mt")
+    # 同一位置只保留一个标记，建仓优先于加减仓
+    priority = {"建仓": 0, "加仓": 1, "降仓": 2}
+    best: dict[int, tuple] = {}
+    for m in marks:
+        cur = best.get(m[0])
+        if cur is None or priority[m[1]] < priority[cur[1]]:
+            best[m[0]] = m
+
+    last_label = -(10 ** 9)
+    min_gap = max(8, int(len(dates) * 0.02))  # 标签最小间距，太近就只画标记
+    for i in sorted(best):
+        _, label, kind = best[i]
+        up = kind == "up"
+        y0 = float(y_nav[i])
+        ch.marker(i, y0, kind, 6.5, COLORS["accent"] if up else COLORS["green"])
+        if i - last_label < min_gap:
+            continue
+        last_label = i
+        y_text = y0 + (pad * 0.45 if up else -pad * 0.45)
+        if y_text > hi - pad * 0.25:      # 贴近上边界时改到下方
+            y_text = y0 - pad * 0.45
+        elif y_text < lo + pad * 0.25:    # 贴近下边界时改到上方
+            y_text = y0 + pad * 0.45
+        anchor = "mb" if up else "mt"
+        frac = i / max(1, len(dates) - 1)
+        if frac < 0.03:
+            anchor = "lb" if up else "lt"
+        elif frac > 0.97:
+            anchor = "rb" if up else "rt"
+        ch.text(i, y_text, label, 11, COLORS["gray"], anchor=anchor)
 
     # ---- 最大回撤区间 ----
     mdd, peak, trough = max_drawdown(nav)
@@ -107,8 +133,8 @@ def fig_nav_curve(
         ch.vline(ip, "#B0B8C1", 1.2, (3, 5))
         ch.vline(it, "#B0B8C1", 1.2, (3, 5))
         mid = (ip + it) / 2
-        ch.text(mid, lo - pad * 0.55, f"最大回撤 {format_pct(mdd, 1)}",
-                12, COLORS["secondary"], anchor="mt")
+        ch.text(mid, lo + pad * 0.12, f"最大回撤 {format_pct(mdd, 1)}",
+                12, COLORS["secondary"], anchor="mt", boxed=True)
 
     # ---- 样本内/外分界 ----
     if split_date:
@@ -150,7 +176,8 @@ def fig_drawdown(result, path: str | Path | None = None) -> Path:
     ch = Chart(1120, 380, margin=(90, 56, 40, 60))
     ch.set_x(0, max(1, len(dates) - 1))
     ch.set_y(lo - pad, hi + pad * 0.4)
-    ch.title("回撤对比", subtitle=f"策略最大回撤 {format_pct(lo, 1)}")
+    ch.title("回撤对比",
+             subtitle=f"策略 {format_pct(float(dd_s.min()), 1)} ｜ 基准 {format_pct(float(dd_b.min()), 1)}")
 
     ticks = nice_ticks(lo - pad, 0.0, 5)
     ch.axes(x_ticks=year_ticks(dates),
@@ -186,7 +213,7 @@ def fig_monthly_heatmap(result, path: str | Path | None = None) -> Path:
     first_year = result.nav.index[0].year
     first_val = result.nav.loc[str(first_year)].iloc[-1] / result.nav.iloc[0] - 1.0
     yearly = pd.concat([pd.Series({pd.Timestamp(f"{first_year}-12-31"): first_val}), yearly])
-    yearly_map = {ts.year: float(v) for ts, v in yearly.items()}
+    yearly_map = {ts.year: float(v) * 100.0 for ts, v in yearly.items()}
 
     years = list(m.index)
     rows, cols = len(years), 13
@@ -258,11 +285,11 @@ def fig_factor_ic(ic_table: pd.DataFrame, selected: list[str],
 
     values = table["icir"].to_numpy()
     lo, hi = float(min(values.min(), 0)), float(max(values.max(), 0))
-    span = max(abs(lo), abs(hi)) * 1.25 or 1.0
+    span = max(abs(lo), abs(hi)) * 1.9 or 1.0  # 给数值标签留位置
     ch.set_x(-span, span)
     ch.set_y(0, n)
     ch.title("候选因子信息系数（样本内 ICIR）",
-             subtitle="红色=入选组合，灰色=未入选；横轴为 IC 均值 / IC 标准差")
+             subtitle="深蓝=入选组合，灰色=未入选；横轴为 ICIR，括号内为 IC 均值")
 
     ticks = nice_ticks(-span, span, 5)
     ch.axes(x_ticks=[(t, f"{t:+.2f}") for t in ticks], y_ticks=None, x_label="ICIR")
@@ -324,15 +351,15 @@ def fig_exposure(result, path: str | Path | None = None) -> Path:
 # ----------------------------------------------------------------------
 def fig_architecture(path: str | Path | None = None) -> Path:
     """系统架构图：分层 + 关键文件，报告插图用。"""
-    ch = Chart(1120, 560, margin=(1, 1, 1, 1))
+    ch = Chart(1120, 620, margin=(1, 1, 1, 1))
     ch.set_x(0, 1120)
-    ch.set_y(0, 560)
+    ch.set_y(0, 620)
 
     ch.pixel_text(30, 26, "QLab 系统架构（分层与数据流）", 20, COLORS["text"], anchor="lt")
 
     layers = [
         ("数据层  qlab.data",
-         ["providers/tencent · sina · akshare · baostock", "cache（CSV + manifest）", "loader → MarketPanel"],
+         ["providers akshare / baostock", "cache + manifest（腾讯/新浪备用）", "loader → MarketPanel"],
          "#1F4E79"),
         ("计算层  qlab.factors",
          ["12 个候选因子（动量/反转/波动/流动性）", "去极值 → z-score", "IC / ICIR / 分层收益"],
@@ -343,7 +370,7 @@ def fig_architecture(path: str | Path | None = None) -> Path:
         ("回测层  qlab.backtest",
          ["t 日收盘信号 → t+1 开盘撮合", "佣金/印花税/滑点/整手", "日频市值结算 → 净值曲线"],
          "#E8A33D"),
-        ("输出层  qlab.analytics · qlab.viz · qlab.webapp",
+        ("输出层  analytics · viz · webapp",
          ["绩效指标 / 样本内外对比", "Pillow 图表 + Excel / CSV", "HTTP API + 前端看板"],
          "#C0504D"),
     ]
@@ -365,7 +392,7 @@ def fig_architecture(path: str | Path | None = None) -> Path:
             ch.draw.line([(cx * ch.scale, (y0 + box_h) * ch.scale),
                           (cx * ch.scale, (y0 + box_h + gap) * ch.scale)],
                          fill="#9AA5B1", width=2 * ch.scale)
-    ch.pixel_text(40, 520, "依赖方向单向向下；每层可独立测试，替换数据源或策略不影响回测层。",
+    ch.pixel_text(40, 580, "依赖方向单向向下；每层可独立测试，替换数据源或策略不影响回测层。",
                   11.5, COLORS["gray"], anchor="lt")
     out = Path(path or FIGURE_DIR / "architecture.png")
     ch.save(out)
