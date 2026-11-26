@@ -176,6 +176,24 @@ DEFAULT_SEGMENTS = [
     SegmentSpec("样本外", "2023-01-01", None),
 ]
 
+
+def segments_for(start: str | None = None, is_end: str | None = None) -> list[SegmentSpec]:
+    """按本次回测的样本内边界生成三段区间。
+
+    命令行用 ``--is-end`` 覆盖默认值时，报告与看板必须跟着变；这里统一口径，
+    避免指标仍按 2022-12-31 统计而回测已跑到别的日期。
+    """
+    if not is_end:
+        return DEFAULT_SEGMENTS
+    start = start or "2019-01-01"
+    oos_start = (pd.Timestamp(is_end) + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    return [
+        SegmentSpec("全样本", None, None),
+        SegmentSpec("样本内", start, is_end),
+        SegmentSpec("样本外", oos_start, None),
+    ]
+
+
 # 报告主表展示的指标（顺序即表格顺序）
 KEY_METRICS = [
     "累计收益率", "年化收益率", "年化波动率", "最大回撤", "夏普比率",
@@ -185,7 +203,9 @@ KEY_METRICS = [
 
 def segment_table(result, rf: float = 0.015, segments=None) -> pd.DataFrame:
     """策略 vs 基准：全样本 / 样本内 / 样本外 指标对比。"""
-    segments = segments or DEFAULT_SEGMENTS
+    if segments is None:
+        cfg = getattr(result, "config", {}) or {}
+        segments = segments_for(cfg.get("start"), cfg.get("is_end"))
     rows = {}
     for seg in segments:
         try:

@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from qlab.analytics.metrics import DEFAULT_SEGMENTS, KEY_METRICS, perf_metrics
+from qlab.analytics.metrics import KEY_METRICS, perf_metrics, segments_for
 from qlab.config import TABLE_DIR
 from qlab.logging_utils import get_logger
 
@@ -47,7 +47,8 @@ class ResultExporter:
     def metrics_table(self, result, rf: float = 0.015) -> pd.DataFrame:
         """全样本 / 样本内 / 样本外的完整指标矩阵（列=区间）。"""
         rows = {}
-        for seg in DEFAULT_SEGMENTS:
+        cfg = getattr(result, "config", {}) or {}
+        for seg in segments_for(cfg.get("start"), cfg.get("is_end")):
             try:
                 sub = result.segment(seg.start, seg.end)
             except ValueError:
@@ -143,7 +144,8 @@ class ResultExporter:
                           rf: float = 0.015) -> Path:
         """Web 看板与报告共用的结构化结果。"""
         metrics = {}
-        for seg in DEFAULT_SEGMENTS:
+        cfg = getattr(result, "config", {}) or {}
+        for seg in segments_for(cfg.get("start"), cfg.get("is_end")):
             try:
                 sub = result.segment(seg.start, seg.end)
             except ValueError:
@@ -196,10 +198,10 @@ class ResultExporter:
             "extra_benchmarks": extra_benchmarks,
             "series": {
                 "dates": [d.strftime("%Y-%m-%d") for d in idx],
-                "nav": [float(v) for v in nav.loc[idx]],
-                "benchmark": [float(v) for v in bench.loc[idx]],
-                "drawdown": [float(v) for v in (nav.loc[idx] / nav.loc[idx].cummax() - 1.0)],
-                "exposure": [float(v) for v in result.exposure.loc[idx]],
+                "nav": _jsonable([float(v) for v in nav.loc[idx]]),
+                "benchmark": _jsonable([float(v) for v in bench.loc[idx]]),
+                "drawdown": _jsonable([float(v) for v in (nav.loc[idx] / nav.loc[idx].cummax() - 1.0)]),
+                "exposure": _jsonable([float(v) for v in result.exposure.loc[idx]]),
             },
             "monthly": {
                 "years": [int(y) for y in monthly.index],

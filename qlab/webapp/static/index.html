@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
 <title>QLab · A 股多因子选股与趋势择时</title>
 <link rel="stylesheet" href="/static/style.css" />
 </head>
@@ -22,34 +23,64 @@
   </div>
 </header>
 
+<nav class="subnav" aria-label="页面导航">
+  <div class="subnav-inner">
+    <a href="#overview" class="on">概览</a>
+    <a href="#navPanel">净值</a>
+    <a href="#riskPanel">风险</a>
+    <a href="#annualPanel">年度</a>
+    <a href="#compare">对比</a>
+    <a href="#monthly">月度</a>
+    <a href="#factors">因子</a>
+    <a href="#trades">成交</a>
+    <a href="#system">系统</a>
+  </div>
+</nav>
+
 <main>
 
-  <section class="panel">
+  <section class="panel" id="params">
     <div class="panel-head">
-      <h2>回测参数</h2>
-      <p class="hint">改动后点“运行回测”，后端会拿本地行情重新跑一遍完整流程。</p>
+      <div>
+        <h2>回测参数</h2>
+        <p class="hint">改动后点“运行回测”，后端会读取本地行情，重新完成因子筛选、组合构建与撮合。</p>
+      </div>
+      <button type="button" class="btn ghost" id="reset">恢复默认</button>
     </div>
     <form id="form" class="grid">
-      <label>起始日期<input name="start" value="2019-01-01" /></label>
-      <label>样本内结束<input name="is_end" value="2022-12-31" /></label>
-      <label>持仓只数<input name="top_n" type="number" value="30" min="5" max="100" /></label>
-      <label>因子个数<input name="factor_k" type="number" value="5" min="2" max="12" /></label>
+      <label>起始日期<input name="start" type="date" value="2019-01-01" /></label>
+      <label>样本内结束<input name="is_end" type="date" value="2022-12-31" /></label>
+      <label>持仓只数<input name="top_n" type="number" value="30" min="5" max="100" step="1" /></label>
+      <label>因子个数<input name="factor_k" type="number" value="5" min="2" max="12" step="1" /></label>
       <label>因子加权
         <select name="weighting">
           <option value="icir">ICIR 加权</option>
           <option value="equal">等权</option>
         </select>
       </label>
-      <label class="check"><input name="timing" type="checkbox" checked /> 沪深300 均线择时</label>
-      <label>初始资金<input name="capital" type="number" value="1000000" step="100000" /></label>
+      <label>初始资金（元）<input name="capital" type="number" value="1000000" step="100000" min="100000" /></label>
+      <label class="check"><input name="timing" type="checkbox" checked /> 沪深 300 均线择时</label>
       <button type="submit" id="run">运行回测</button>
     </form>
+    <p class="hint form-note" id="formNote">样本外区间由“样本内结束”自动确定；首次运行会先加载本地行情缓存。</p>
   </section>
 
-  <section class="panel">
+  <section class="verdict" id="verdict" aria-live="polite">
+    <div class="verdict-main">
+      <span class="eyebrow">回测结论 · 全样本</span>
+      <p class="verdict-text" id="verdictText">正在读取最近一次结果…</p>
+      <p class="verdict-sub" id="verdictSub"></p>
+    </div>
+    <div class="verdict-kpis" id="verdictKpis"></div>
+  </section>
+
+  <section class="panel" id="overview">
     <div class="panel-head">
-      <h2>核心指标</h2>
-      <div class="seg" id="seg">
+      <div>
+        <h2>核心指标</h2>
+        <p class="hint">指标卡、净值曲线与回撤图会随下方区间同步切换。</p>
+      </div>
+      <div class="seg" id="seg" role="group" aria-label="统计区间">
         <button type="button" data-seg="全样本" class="on">全样本</button>
         <button type="button" data-seg="样本内">样本内</button>
         <button type="button" data-seg="样本外">样本外</button>
@@ -59,41 +90,107 @@
     <p class="note" id="segNote"></p>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="navPanel">
     <div class="panel-head">
-      <h2>归一化净值</h2>
+      <div>
+        <h2>归一化净值</h2>
+        <p class="hint" id="navHint">策略与基准均从 1.0 起算；底部绿色色带为减仓区间。</p>
+      </div>
       <div class="legend">
         <span><i class="sw strat"></i>策略</span>
         <span><i class="sw bench"></i>基准</span>
         <span><i class="sw split"></i>样本内外分界</span>
+        <span><i class="sw band"></i>减仓区间</span>
         <span><i class="sw mk"></i>▲ 建仓/加仓</span>
         <span><i class="sw mkdn"></i>▼ 降仓</span>
       </div>
     </div>
     <div class="chart-wrap">
-      <canvas id="navChart" style="height:380px"></canvas>
+      <canvas id="navChart" style="height:400px"></canvas>
       <div class="tip" id="navTip"></div>
     </div>
+    <p class="chart-note" id="navStat"></p>
   </section>
 
-  <section class="panel">
-    <div class="panel-head">
-      <h2>回撤</h2>
-      <div class="legend">
-        <span><i class="sw strat"></i>策略</span>
-        <span><i class="sw bench"></i>基准</span>
+  <div class="two-col">
+    <section class="panel" id="riskPanel">
+      <div class="panel-head">
+        <div>
+          <h2>回撤对比</h2>
+          <p class="hint">策略与基准的水下曲线，越浅越好。</p>
+        </div>
+        <div class="legend">
+          <span><i class="sw strat"></i>策略</span>
+          <span><i class="sw bench"></i>基准</span>
+        </div>
       </div>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="ddChart" style="height:240px"></canvas>
-      <div class="tip" id="ddTip"></div>
-    </div>
-  </section>
+      <div class="chart-wrap">
+        <canvas id="ddChart" style="height:250px"></canvas>
+        <div class="tip" id="ddTip"></div>
+      </div>
+      <p class="chart-note" id="ddStat"></p>
+    </section>
 
-  <section class="panel">
+    <section class="panel" id="expoPanel">
+      <div class="panel-head">
+        <div>
+          <h2>仓位与择时</h2>
+          <p class="hint">股票市值占总资产的比例，用于观察均线择时的降仓效果。</p>
+        </div>
+        <div class="legend"><span><i class="sw strat"></i>股票仓位</span></div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="expoChart" style="height:250px"></canvas>
+        <div class="tip" id="expoTip"></div>
+      </div>
+      <p class="chart-note" id="expoStat"></p>
+    </section>
+  </div>
+
+  <div class="two-col">
+    <section class="panel" id="annualPanel">
+      <div class="panel-head">
+        <div>
+          <h2>年度收益对比</h2>
+          <p class="hint">按自然年统计，单位 %；固定展示全样本各年。</p>
+        </div>
+        <div class="legend">
+          <span><i class="sw strat"></i>策略</span>
+          <span><i class="sw bench"></i>基准</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="annualChart" style="height:280px"></canvas>
+        <div class="tip" id="annualTip"></div>
+      </div>
+      <p class="chart-note" id="annualStat"></p>
+    </section>
+
+    <section class="panel" id="relPanel">
+      <div class="panel-head">
+        <div>
+          <h2>相对强弱</h2>
+          <p class="hint">策略净值 ÷ 基准净值，高于 1 表示累计跑赢基准。</p>
+        </div>
+        <div class="legend">
+          <span><i class="sw strat"></i>相对强弱</span>
+          <span><i class="sw base"></i>1.0 基准线</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="relChart" style="height:280px"></canvas>
+        <div class="tip" id="relTip"></div>
+      </div>
+      <p class="chart-note" id="relStat"></p>
+    </section>
+  </div>
+
+  <section class="panel" id="compare">
     <div class="panel-head">
-      <h2>策略与基准对比</h2>
-      <p class="hint">全样本 / 样本内 / 样本外三段分别统计，基准为沪深 300。</p>
+      <div>
+        <h2>策略与基准对比</h2>
+        <p class="hint">全样本 / 样本内 / 样本外三段分别统计；红字表示该指标优于基准。</p>
+      </div>
     </div>
     <div class="table-wrap">
       <table class="tbl" id="metricTable">
@@ -115,27 +212,39 @@
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="excess">
     <div class="panel-head">
-      <h2>超额收益与差异来源</h2>
-      <p class="hint">相对沪深 300，按全样本统计</p>
+      <div>
+        <h2>超额收益与差异来源</h2>
+        <p class="hint">相对沪深 300，按全样本统计。</p>
+      </div>
     </div>
     <p class="analysis" id="excessText"></p>
+    <div class="cost-grid" id="costGrid"></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="monthly">
     <div class="panel-head">
-      <h2>月度收益</h2>
-      <p class="hint">单位 %，红涨绿跌；最后一列为该年累计。</p>
+      <div>
+        <h2>月度收益热力图</h2>
+        <p class="hint">单位 %，红涨绿跌；最后一列为该年累计。展示全样本，可切换策略/基准。</p>
+      </div>
+      <div class="seg" id="monthlySeg" role="group" aria-label="月度收益口径">
+        <button type="button" data-view="strategy" class="on">策略</button>
+        <button type="button" data-view="benchmark">基准</button>
+      </div>
     </div>
     <div class="heatmap" id="heatmap"></div>
+    <p class="chart-note" id="monthlyNote"></p>
   </section>
 
   <div class="two-col">
-    <section class="panel">
+    <section class="panel" id="factors">
       <div class="panel-head">
-        <h2>因子检验</h2>
-        <p class="hint">样本内 IC / ICIR，● 为入选因子。</p>
+        <div>
+          <h2>因子检验</h2>
+          <p class="hint">样本内 IC / ICIR，● 为入选因子。</p>
+        </div>
       </div>
       <div class="table-wrap">
         <table class="tbl" id="factorTable">
@@ -144,10 +253,12 @@
         </table>
       </div>
     </section>
-    <section class="panel">
+    <section class="panel" id="holdings">
       <div class="panel-head">
-        <h2>最新持仓</h2>
-        <p class="hint" id="holdHint">最近一个调仓日的目标权重</p>
+        <div>
+          <h2>最新目标组合</h2>
+          <p class="hint" id="holdHint">最近一个调仓日的目标权重</p>
+        </div>
       </div>
       <div class="table-wrap">
         <table class="tbl" id="holdTable">
@@ -158,10 +269,19 @@
     </section>
   </div>
 
-  <section class="panel">
+  <section class="panel" id="trades">
     <div class="panel-head">
-      <h2>最近成交</h2>
-      <p class="hint" id="tradeHint">按成交时间倒序，最多 60 笔</p>
+      <div>
+        <h2>最近成交</h2>
+        <p class="hint" id="tradeHint">按成交时间倒序</p>
+      </div>
+      <label class="inline-select">方向
+        <select id="tradeSide">
+          <option value="all">全部</option>
+          <option value="buy">仅买入</option>
+          <option value="sell">仅卖出</option>
+        </select>
+      </label>
     </div>
     <div class="table-wrap">
       <table class="tbl" id="tradeTable">
@@ -171,10 +291,12 @@
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="system">
     <div class="panel-head">
-      <h2>系统模块</h2>
-      <p class="hint">数据层 → 计算层 → 策略层 → 回测层 → 输出层，单向依赖</p>
+      <div>
+        <h2>系统模块</h2>
+        <p class="hint">数据层 → 计算层 → 策略层 → 回测层 → 输出层，单向依赖。</p>
+      </div>
     </div>
     <div class="modules">
       <div class="module"><b>数据层 qlab.data</b><span>akshare / baostock 取数、CSV 缓存、质量检查、面板装配</span></div>
@@ -183,11 +305,16 @@
       <div class="module"><b>回测层 qlab.backtest</b><span>T+1 开盘撮合、佣金/印花税/滑点/整手、日频结算</span></div>
       <div class="module"><b>输出层 analytics · viz · webapp</b><span>绩效指标、Pillow 图表、HTTP 接口与看板</span></div>
     </div>
-  </section>
-
-  <section class="panel">
-    <h2>数据与回测设置</h2>
-    <dl class="meta-list" id="metaList"></dl>
+    <div class="meta-grid">
+      <dl class="meta-list" id="metaList"></dl>
+      <div class="artifact-box">
+        <b>结果产物</b>
+        <p>净值与指标：<code>output/tables/nav_daily.csv</code>、<code>metrics_by_segment.csv</code></p>
+        <p>图表：<code>output/figures/nav_curve.png</code>、<code>drawdown.png</code>、<code>monthly_heatmap.png</code></p>
+        <p>技术报告：<code>output/report/项目技术报告.docx</code></p>
+        <p class="hint">页面上的图表由浏览器实时绘制；Pillow 版本供报告与 PPT 使用。</p>
+      </div>
+    </div>
   </section>
 
 </main>

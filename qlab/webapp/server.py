@@ -65,35 +65,90 @@ class BacktestService:
 
     # ------------------------------------------------------------------
     def run(self, params: dict) -> dict:
-        """按前端参数跑一次回测。"""
-        from qlab.analytics.metrics import DEFAULT_SEGMENTS, perf_metrics
+        """按前端参数跑一次回测。
+
+        参数全部来自看板表单，这里做一次服务端校验：前端校验可以被绕过，
+        而回测区间、样本内边界、Top-N 等一旦非法，后面的取数/切片会抛出不
+        易理解的 IndexError，所以先给出可读的错误信息。
+        """
+        import pandas as pd
+
+        from qlab.analytics.metrics import SegmentSpec, perf_metrics
         from qlab.backtest import PortfolioBacktester
         from qlab.strategy import MultiFactorStrategy
 
         with self.lock:
             panel = self.ensure_panel()
+
+            start = str(params.get("start") or "2019-01-01")
+            is_end = str(params.get("is_end") or "2022-12-31")
+            try:
+                start_ts = pd.Timestamp(start)
+                is_end_ts = pd.Timestamp(is_end)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"日期格式应为 YYYY-MM-DD（{exc}）") from exc
+            if is_end_ts <= start_ts:
+                raise ValueError("样本内结束日必须晚于回测起始日")
+            if start_ts > panel.dates[-1]:
+                raise ValueError(
+                    f"回测起始日 {start} 晚于数据末端 {panel.dates[-1].date()}，请先更新行情"
+                )
+            if start_ts < panel.dates[0]:
+                start = str(panel.dates[0].date())
+                start_ts = panel.dates[0]
+            if is_end_ts > panel.dates[-1]:
+                is_end = str(panel.dates[-1].date())
+                is_end_ts = panel.dates[-1]
+
+            top_n = int(params.get("top_n") or 30)
+            factor_k = int(params.get("factor_k") or 5)
+            capital = float(params.get("capital") or 1_000_000)
+            weighting = str(params.get("weighting") or "icir")
+            timing = params.get("timing", True)
+            if isinstance(timing, str):
+                timing = timing.strip().lower() not in ("false", "0", "off", "")
+            if not 5 <= top_n <= 100:
+                raise ValueError("持仓只数应在 5~100 之间")
+            if not 2 <= factor_k <= 12:
+                raise ValueError("因子个数应在 2~12 之间")
+            if capital < 100_000:
+                raise ValueError("初始资金不应低于 10 万元")
+            if weighting not in ("icir", "equal"):
+                raise ValueError("因子加权方式只能是 icir 或 equal")
+
             bt_cfg = BacktestConfig(
-                start=str(params.get("start") or "2019-01-01"),
-                end=params.get("end"),
-                is_end=str(params.get("is_end") or "2022-12-31"),
-                top_n=int(params.get("top_n") or 30),
-                initial_cash=float(params.get("capital") or 1_000_000),
+                start=start, end=None, is_end=is_end,
+                top_n=top_n, initial_cash=capital,
             )
             strat_cfg = StrategyConfig(
-                factor_select_k=int(params.get("factor_k") or 5),
-                weighting=str(params.get("weighting") or "icir"),
-                timing_enabled=bool(params.get("timing", True)),
+                factor_select_k=factor_k,
+                weighting=weighting,
+                timing_enabled=bool(timing),
             )
             bt_panel = panel.slice(bt_cfg.start, bt_cfg.end)
             panel_is = panel.slice(None, bt_cfg.is_end)
+            if len(bt_panel.dates) < 60:
+                raise ValueError("回测区间不足 60 个交易日，请调整起始日")
+            if len(panel_is.dates) < 300:
+                raise ValueError("样本内交易日不足 300 天，无法估计因子，请把样本内结束日往后调")
 
             strategy = MultiFactorStrategy(strat_cfg, bt_cfg).fit(panel_is)
             targets = strategy.generate_targets(panel, start=bt_cfg.start)
             targets = targets[targets.index >= bt_panel.dates[0]]
             result = PortfolioBacktester(bt_cfg).run(bt_panel, targets)
 
+            # 分段边界跟随用户输入，而不是固定 2019/2022
+            segments = [
+                SegmentSpec("全样本", None, None),
+                SegmentSpec("样本内", start, is_end),
+                SegmentSpec(
+                    "样本外",
+                    (is_end_ts + pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
+                    None,
+                ),
+            ]
             metrics = {}
-            for seg in DEFAULT_SEGMENTS:
+            for seg in segments:
                 try:
                     sub = result.segment(seg.start, seg.end)
                 except ValueError:
@@ -106,40 +161,112 @@ class BacktestService:
             nav = result.nav
             bench = result.benchmark_nav.reindex(nav.index).ffill()
             bench = bench / bench.dropna().iloc[0]
-            step = max(1, len(nav) // 900)
-            idx = nav.index[::step]
-            monthly = result.monthly_returns()
+            step = max(1, len(nav) // 1000)
+            positions = list(range(0, len(nav), step))
+            if positions[-1] != len(nav) - 1:
+                positions.append(len(nav) - 1)  # 保证末端点不被抽样丢掉
+            idx = nav.index[positions]
             dd = nav / nav.cummax() - 1.0
+            bench_dd = bench / bench.cummax() - 1.0
+
+            # 净值采样后的序列索引与原始交易日不同，标记点要在采样后的坐标上
+            pos_of = {d: i for i, d in enumerate(idx)}
+
+            def marker_index(day) -> int | None:
+                if day in pos_of:
+                    return pos_of[day]
+                later = idx[idx >= day]
+                return pos_of[later[0]] if len(later) else None
+
+            markers = []
+            if not result.targets.empty:
+                gross = result.targets.sum(axis=1)
+                prev = None
+                for day, value in gross.items():
+                    if prev is None:
+                        label = "建仓"
+                    elif value - prev > 1e-6:
+                        label = "加仓"
+                    else:
+                        prev = value
+                        continue
+                    i = marker_index(day)
+                    if i is not None:
+                        markers.append({
+                            "i": i, "date": day.strftime("%Y-%m-%d"),
+                            "label": label, "kind": "up",
+                        })
+                    prev = value
+                # 降仓单独扫描，避免和“加仓/建仓”混在同一条件里
+                prev = None
+                for day, value in gross.items():
+                    if prev is not None and prev - value > 1e-6:
+                        i = marker_index(day)
+                        if i is not None:
+                            markers.append({
+                                "i": i, "date": day.strftime("%Y-%m-%d"),
+                                "label": "降仓", "kind": "down",
+                            })
+                    prev = value
+                markers.sort(key=lambda m: (m["i"], m["kind"] != "up"))
+
+            monthly = result.monthly_returns()
+            monthly_bench = _monthly_matrix(bench)
+            annual = _annual_returns(nav, bench)
+
+            years = len(nav) / bt_cfg.trading_days
+            avg_equity = float(result.equity.mean())
+            total_cost = float(result.total_cost)
+            cost_annual = total_cost / avg_equity / years if avg_equity > 0 and years > 0 else 0.0
 
             payload = {
                 "meta": {
                     "universe_size": len(panel.symbols),
+                    "universe_requested": int(self.data_cfg.universe_size),
+                    "data_start": str(panel.dates[0].date()),
+                    "data_end": str(panel.dates[-1].date()),
                     "start": str(bt_panel.dates[0].date()),
                     "end": str(bt_panel.dates[-1].date()),
                     "is_end": str(bt_cfg.is_end),
                     "benchmark": panel.benchmark_name,
                     "top_n": bt_cfg.top_n,
+                    "factor_k": strat_cfg.factor_select_k,
                     "weighting": strat_cfg.weighting,
                     "timing": strat_cfg.timing_enabled,
+                    "timing_ma": strat_cfg.timing_ma_window,
+                    "timing_low": strat_cfg.timing_low_exposure,
+                    "max_weight": strat_cfg.max_weight,
                     "provider": self.data_cfg.provider,
                     "adjust": self.data_cfg.adjust,
+                    "current_exposure": float(result.exposure.iloc[-1]),
                 },
                 "metrics": {k: _clean(v) for k, v in metrics.items()},
                 "series": {
                     "dates": [d.strftime("%Y-%m-%d") for d in idx],
-                    "nav": [float(v) for v in nav.loc[idx]],
-                    "benchmark": [float(v) for v in bench.loc[idx]],
-                    "drawdown": [float(v) for v in dd.loc[idx]],
-                    "exposure": [float(v) for v in result.exposure.loc[idx]],
+                    # 用 _clean 把 NaN 转成 null：Python 的 json 默认允许 NaN，
+                    # 但浏览器的 JSON.parse 不接受，会导致整个看板加载失败。
+                    "nav": _clean([float(v) for v in nav.loc[idx]]),
+                    "benchmark": _clean([float(v) for v in bench.loc[idx]]),
+                    "drawdown": _clean([float(v) for v in dd.loc[idx]]),
+                    "benchmark_drawdown": _clean([float(v) for v in bench_dd.loc[idx]]),
+                    "exposure": _clean([float(v) for v in result.exposure.loc[idx]]),
+                    "n_holdings": [int(v) for v in result.n_holdings.loc[idx]],
                 },
+                "annual": annual,
                 "monthly": {
                     "years": [int(y) for y in monthly.index],
                     "matrix": [[None if v != v else float(v) for v in row]
                                for row in monthly.to_numpy()],
                 },
+                "monthly_benchmark": {
+                    "years": [int(y) for y in monthly_bench.index],
+                    "matrix": [[None if v != v else float(v) for v in row]
+                               for row in monthly_bench.to_numpy()],
+                },
+                "markers": markers,
                 "factors": _clean(strategy.ic_table.to_dict(orient="records")),
                 "selected": [s.as_dict() for s in strategy.specs],
-                "trades": _clean(result.trades.tail(60).to_dict(orient="records")),
+                "trades": _clean(result.trades.tail(80).to_dict(orient="records")),
                 "holdings": [
                     {"symbol": s, "name": panel.names.get(s, s), "weight": float(w)}
                     for s, w in result.targets.iloc[-1].sort_values(ascending=False).items()
@@ -150,7 +277,8 @@ class BacktestService:
                     "commission": float(result.trades["commission"].sum()) if not result.trades.empty else 0.0,
                     "stamp_duty": float(result.trades["stamp_duty"].sum()) if not result.trades.empty else 0.0,
                     "slippage": float(result.trades["slippage_cost"].sum()) if not result.trades.empty else 0.0,
-                    "total": float(result.total_cost),
+                    "total": total_cost,
+                    "annual": cost_annual,
                     "trades": int(len(result.trades)),
                 },
                 "rebalance_dates": [d.strftime("%Y-%m-%d") for d in result.rebalance_dates],
@@ -163,6 +291,40 @@ class BacktestService:
 
 
 # ----------------------------------------------------------------------
+def _monthly_matrix(series):
+    """把日频净值序列转成「年 × 月」收益矩阵（%），首月以上市首日为基期。"""
+    import pandas as pd
+
+    series = series.dropna()
+    if len(series) < 2:
+        return pd.DataFrame()
+    me = series.resample("ME").last()
+    first = pd.Series([series.iloc[0]], index=[series.index[0] - pd.offsets.MonthEnd(0)])
+    rets = pd.concat([first, me]).pct_change(fill_method=None).dropna()
+    out = pd.DataFrame({"year": rets.index.year, "month": rets.index.month,
+                        "ret": rets.to_numpy()})
+    table = out.pivot_table(index="year", columns="month", values="ret", aggfunc="last")
+    return (table * 100.0).round(2)
+
+
+def _annual_returns(nav, bench) -> dict:
+    """逐年收益（%）：以每年最后一个交易日对上一年末（首年对回测首日）计算。"""
+    def yearly(series):
+        series = series.dropna()
+        if len(series) < 2:
+            return []
+        last = series.groupby(series.index.year).last()
+        prev = float(series.iloc[0])
+        values = []
+        for value in last.to_numpy():
+            values.append((float(value) / prev - 1.0) * 100.0 if prev > 0 else None)
+            prev = float(value)
+        return values
+
+    years = [int(y) for y in nav.dropna().groupby(nav.dropna().index.year).last().index]
+    return {"years": years, "strategy": yearly(nav), "benchmark": yearly(bench)}
+
+
 def _clean(obj):
     """把 NaN / numpy / pandas 类型转成 JSON 可序列化对象。"""
     import numpy as np
