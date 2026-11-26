@@ -77,7 +77,7 @@ class BacktestService:
                 end=params.get("end"),
                 is_end=str(params.get("is_end") or "2022-12-31"),
                 top_n=int(params.get("top_n") or 30),
-                initial_cash=float(params.get("capital") or 10_000_000),
+                initial_cash=float(params.get("capital") or 1_000_000),
             )
             strat_cfg = StrategyConfig(
                 factor_select_k=int(params.get("factor_k") or 5),
@@ -200,7 +200,16 @@ class Handler(BaseHTTPRequestHandler):
         self._send(code, json.dumps(obj, ensure_ascii=False).encode("utf-8"))
 
     def _file(self, path: Path):
-        if not path.exists():
+        # 只允许读取 static 目录内的文件，避免 /static/../ 目录穿越
+        root = STATIC_DIR.resolve()
+        try:
+            target = path.resolve()
+        except OSError:
+            target = path
+        if target != root and root not in target.parents:
+            self._json({"error": "not found"}, 404)
+            return
+        if not target.exists():
             self._json({"error": "not found"}, 404)
             return
         ctype = {
@@ -208,8 +217,8 @@ class Handler(BaseHTTPRequestHandler):
             ".js": "application/javascript; charset=utf-8",
             ".css": "text/css; charset=utf-8",
             ".png": "image/png",
-        }.get(path.suffix, "text/plain; charset=utf-8")
-        self._send(200, path.read_bytes(), ctype)
+        }.get(target.suffix, "text/plain; charset=utf-8")
+        self._send(200, target.read_bytes(), ctype)
 
     def log_message(self, fmt, *args):  # 降低访问日志噪音
         log.debug("web %s - %s", self.address_string(), fmt % args)

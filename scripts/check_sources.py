@@ -44,18 +44,18 @@ def installed(pkg: str | None) -> bool:
     return pkg is None or importlib.util.find_spec(pkg) is not None
 
 
-def check(provider_name: str, symbol: str, start: str, end: str) -> None:
+def check(provider_name: str, symbol: str, start: str, end: str) -> bool:
     label = "指数" if symbol.startswith(("sh000", "sz399")) else "个股"
     try:
         provider = get_provider(provider_name, adjust="day", pause=0.0, retry=1)
         df = provider.fetch_daily(symbol, start, end)
     except Exception as exc:
         print(f"  {provider_name:<8} {symbol} {label}  ✗ {type(exc).__name__}: {exc}")
-        return
+        return False
 
     if df is None or df.empty:
         print(f"  {provider_name:<8} {symbol} {label}  ✗ 空数据")
-        return
+        return False
 
     last_close = float(df["close"].iloc[-1])
     line = (f"  {provider_name:<8} {symbol} {label}  ✓ {len(df):>3} 行  "
@@ -68,6 +68,7 @@ def check(provider_name: str, symbol: str, start: str, end: str) -> None:
             diff = abs(float(base["close"].iloc[-1]) - last_close)
             line += f"  (本地缓存 {float(base['close'].iloc[-1]):.2f}，差 {diff:.2f})"
     print(line)
+    return True
 
 
 def main() -> int:
@@ -88,9 +89,13 @@ def main() -> int:
         if not installed(pkg):
             print(f"  {name:<8} 未安装（pip install {pkg}），跳过")
             continue
+        success = 0
         for symbol in (STOCK, INDEX):
-            check(name, symbol, args.start, args.end)
-        ok += 1
+            success += int(check(name, symbol, args.start, args.end))
+        if success:
+            ok += 1
+        else:
+            print(f"  {name:<8} ✗ 全部取数失败")
 
     print(f"\n可用的数据源：{ok} 个")
     return 0 if ok else 1

@@ -64,6 +64,48 @@ class TestExecutionTiming(unittest.TestCase):
         self.assertEqual(res.trades.iloc[0]["date"], panel.dates[3])
         self.assertAlmostEqual(res.nav.iloc[0], 1.0, places=6)
 
+    def test_uses_next_open_price_not_next_close(self):
+        # t1 开盘 100、收盘 200：按开盘价成交净值约为 2.0；若误用 t1 收盘价成交则约为 1.0
+        panel = make_panel({"AAA": [10.0, 200.0, 200.0]}, {"AAA": [10.0, 100.0, 100.0]})
+        cfg = BacktestConfig(initial_cash=1_000_000, commission_rate=0, min_commission=0,
+                             slippage=0)
+        targets = pd.DataFrame(0.0, index=[panel.dates[0]], columns=["AAA"])
+        targets.iloc[0, 0] = 1.0
+        res = PortfolioBacktester(cfg).run(panel, targets)
+        self.assertAlmostEqual(float(res.trades.iloc[0]["price"]), 100.0, places=4)
+        # 整手/现金余量会让净值略低于 2.0，但必须明显高于“按收盘价成交”时的 1.0
+        self.assertGreater(res.nav.iloc[1], 1.8)
+        self.assertLess(res.nav.iloc[1], 2.05)
+
+
+class TestSuspension(unittest.TestCase):
+    """停牌（当日无开盘价）标的不可成交：既不能买，也不能卖。"""
+
+    def test_suspended_stock_is_not_bought(self):
+        panel = make_panel({"AAA": [10.0] * 5},
+                           {"AAA": [10.0, float("nan"), 10.0, 10.0, 10.0]})
+        cfg = BacktestConfig(initial_cash=1_000_000, commission_rate=0,
+                             min_commission=0, slippage=0)
+        targets = pd.DataFrame(0.0, index=[panel.dates[0]], columns=["AAA"])
+        targets.iloc[0, 0] = 1.0
+        res = PortfolioBacktester(cfg).run(panel, targets)
+        self.assertTrue(res.trades.empty)
+        self.assertAlmostEqual(res.nav.iloc[-1], 1.0, places=6)
+
+    def test_suspended_holding_is_not_sold(self):
+        panel = make_panel(
+            {"AAA": [10.0] * 6},
+            {"AAA": [10.0, 10.0, 10.0, float("nan"), float("nan"), 10.0]},
+        )
+        cfg = BacktestConfig(initial_cash=1_000_000, commission_rate=0,
+                             min_commission=0, slippage=0)
+        t = pd.DataFrame(0.0, index=[panel.dates[0], panel.dates[2]], columns=["AAA"])
+        t.iloc[0, 0] = 1.0   # 建仓，t+1 成交
+        t.iloc[1, 0] = 0.0   # 清仓信号，t+1（第 4 天）停牌，卖不出
+        res = PortfolioBacktester(cfg).run(panel, t)
+        self.assertEqual(len(res.trades), 1)          # 只有买入那一笔
+        self.assertEqual(int(res.n_holdings.iloc[-1]), 1)
+
 
 class TestCosts(unittest.TestCase):
     """佣金 / 印花税 / 滑点的记账准确性。"""

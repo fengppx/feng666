@@ -177,10 +177,23 @@ class ResultExporter:
                 for s, w in picks.items()
             ]
 
+        # 额外基准（如中证 500）的独立绩效，供报告做风格参照
+        eb_names = panel_meta.get("extra_benchmark_names") or {}
+        extra_benchmarks = {}
+        for sym, series in result.extra_benchmarks.items():
+            s = series.dropna() if series is not None else None
+            if s is None or len(s) < 3:
+                continue
+            extra_benchmarks[sym] = {
+                "name": eb_names.get(sym, sym),
+                "metrics": _jsonable(perf_metrics(s, None, rf=rf)),
+            }
+
         payload = {
             "meta": _jsonable(panel_meta),
             "config": _jsonable(result.config),
             "metrics": metrics,
+            "extra_benchmarks": extra_benchmarks,
             "series": {
                 "dates": [d.strftime("%Y-%m-%d") for d in idx],
                 "nav": [float(v) for v in nav.loc[idx]],

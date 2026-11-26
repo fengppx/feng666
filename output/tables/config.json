@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-26 13:08:05",
+  "run_at": "2026-11-26 19:27:57",
   "data": {
     "fetch_start": "2017-06-01",
     "fetch_end": null,
@@ -60,7 +60,7 @@
     "weighting": "icir",
     "no_timing": false,
     "require_start": "2017-09-01",
-    "no_ablation": true,
+    "no_ablation": false,
     "capital": 1000000.0
   }
 }

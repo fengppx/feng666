@@ -193,12 +193,18 @@ class MultiFactorStrategy:
         rows = pd.DataFrame(0.0, index=pd.DatetimeIndex(reb_dates, name="date"), columns=symbols)
         score_log = {}
         capped_days = 0
+        kept_dates: list[pd.Timestamp] = []
         for d in reb_dates:
             s = score.loc[d]
-            # 只投资当日有有效价格、且因子值非空的标的
-            valid = s.notna() & panel.close.loc[d].notna()
+            # 只投资当日有成交（非停牌）且因子值非空的标的。
+            # 成交量不做前向填充，因此 volume 缺失/为 0 就代表当天停牌；
+            # 停牌股的因子值来自停牌前的旧价格，纳入组合会带来不可成交的“纸上收益”。
+            traded = panel.volume.loc[d].fillna(0.0) > 0
+            valid = s.notna() & traded
             if valid.sum() < 5:
+                # 有效标的太少：视为“没有信号”，保留原持仓，不生成目标
                 continue
+            kept_dates.append(d)
             picks = s[valid].nlargest(min(self.bt_cfg.top_n, int(valid.sum()))).index
             score_log[d] = s[valid].nlargest(10).to_dict()
             exposure_d = float(exposure.loc[d])
@@ -209,8 +215,9 @@ class MultiFactorStrategy:
                 capped_days += 1
             rows.loc[d, picks] = weight
 
-        # 去掉因有效标的不足而没有生成目标的调仓日（避免被引擎误读为清仓）
-        rows = rows.loc[rows.sum(axis=1) > 0]
+        # 只保留真正生成过得分的调仓日。注意：仓位系数为 0 时整行都是 0，
+        # 那是“清仓”信号而不是“没有信号”，必须保留给引擎执行。
+        rows = rows.loc[kept_dates]
 
         self.diagnostics["capped_days"] = capped_days
 

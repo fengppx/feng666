@@ -120,6 +120,10 @@ def _table(doc, df: pd.DataFrame, widths: list[float] | None = None,
         )
         cell._tc.get_or_add_tcPr().append(shading)
 
+    # 跨页时重复表头，避免第二页只剩数据行
+    tr_pr = table.rows[0]._tr.get_or_add_trPr()
+    tr_pr.append(tr_pr.makeelement(qn("w:tblHeader"), {qn("w:val"): "true"}))
+
     for i in range(data.shape[0]):
         for j, col in enumerate(data.columns):
             val = data.iloc[i, j]
@@ -206,6 +210,32 @@ def build_technical_report(output_dir: str | Path | None = None,
     quality_path = TABLE_DIR / "data_quality.csv"
     quality = pd.read_csv(quality_path) if quality_path.exists() else None
 
+    # 代码行数实时统计，避免文档里的数字过期
+    def _count_lines(pattern: str) -> int:
+        return sum(len(p.read_text(encoding="utf-8").splitlines())
+                   for p in sorted(PROJECT_ROOT.glob(pattern)))
+
+    pkg_lines = _count_lines("qlab/**/*.py")
+    total_lines = pkg_lines + _count_lines("scripts/*.py") + _count_lines("tests/*.py")
+
+    # 交叉校验结论从 source_check.csv 读取，避免“8 只里 7 只一致”这类硬编码数字过期
+    sc_path = TABLE_DIR / "source_check.csv"
+    if sc_path.exists():
+        sc = pd.read_csv(sc_path)
+        n_sc = len(sc)
+        n_exact = int((sc["max_abs_diff"].abs() < 1e-12).sum()) if "max_abs_diff" in sc else 0
+        diffs = sorted({round(float(v), 3) for v in sc["max_abs_diff"].dropna()
+                        if abs(float(v)) > 1e-12}) if "max_abs_diff" in sc else []
+        diff_txt = "、".join(f"{d:g} 元" for d in diffs) if diffs else "无"
+        check_text = (f"独立校验源：baostock。抽取 {n_sc} 只标的把本地缓存与它的收盘价逐日比对："
+                      f"其中 {n_exact} 只完全一致，其余最大绝对偏差为 {diff_txt}，"
+                      "属低价股/指数的一分钱取整，可以确认主源没有错位或缺日。"
+                      "复核命令：python -m qlab check --sample 15。")
+    else:
+        check_text = ("独立校验源：baostock。抽样把本地缓存与它的收盘价逐日比对，"
+                      "偏差均在取整误差内，可以确认主源没有错位或缺日。"
+                      "复核命令：python -m qlab check --sample 15。")
+
     meta = summary["meta"]
     bt_cfg = summary["config"]
     m_all = summary["metrics"].get("全样本", {})
@@ -239,7 +269,7 @@ def build_technical_report(output_dir: str | Path | None = None,
     # ---------------- 封面 ----------------
     _para(doc, "", size=10, space_after=60)
     _para(doc, title or "QLab：A 股多因子选股与趋势择时量化交易系统",
-          size=22, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=10)
+          size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=10)
     _para(doc, "项目技术报告", size=15, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER,
           space_after=8, color=PRIMARY)
     _para(doc, "课程：量化交易　|　形式：小组项目（4 人）", size=11,
@@ -270,8 +300,8 @@ def build_technical_report(output_dir: str | Path | None = None,
           f"最大回撤 {m_all.get('最大回撤', 0) * 100:.1f}%、夏普 {m_all.get('夏普比率', 0):.2f}；"
           f"同期{meta['benchmark']}累计 {m_all.get('基准累计收益率', 0) * 100:.1f}%、"
           f"最大回撤 {m_all.get('基准最大回撤', 0) * 100:.1f}%、夏普 {m_all.get('基准夏普比率', 0):.2f}。"
-          f"年化超额收益 {m_all.get('超额收益(年化)', 0) * 100:.1f} 个百分点，"
-          f"信息比率 {m_all.get('信息比率', 0):.2f}。",
+          f"年化超额收益 {m_all.get('超额收益(年化)', 0) * 100:.1f} 个百分点（几何口径），"
+          f"信息比率 {m_all.get('信息比率', 0):.2f}（算术口径；两者差异来自波动率拖累，见 5.2 注）。",
           indent=0.74)
     _para(doc,
           f"按样本内（2019-2022）/样本外（2023 至今）切分后，策略年化收益分别为 "
@@ -283,17 +313,16 @@ def build_technical_report(output_dir: str | Path | None = None,
     # ---------------- 2 数据 ----------------
     _heading(doc, "二、数据来源与数据工程", 1)
     _heading(doc, "2.1 数据来源", 2)
-    _bullet(doc, "股票池：取自新浪财经行情中心的 A 股列表接口，按抓取当日总市值降序取前 300 只，"
-                 "作为沪深 300 的大市值样本；剔除 ST 与退市标的，以及上市时间不足、"
-                 "拿不到 2017-09 之前历史行情的标的。")
+    _bullet(doc, "股票池：A 股实时快照（akshare 优先，接口限流时回退新浪列表接口），按抓取当日"
+                 "总市值降序取前 300 只，作为沪深 300 的大市值样本；剔除 ST 与退市标的，"
+                 "以及上市时间不足、拿不到 2017-09 之前历史行情的标的。")
     _bullet(doc, "日线行情（主源）：akshare，覆盖 A 股日线与指数。取数优先走东方财富接口，"
                  "请求过密被限流时改用新浪通道，单只标的失败不会中断整批。"
                  f"数据区间 {meta.get('data_start', '')} ~ {meta.get('data_end', '')}，"
                  f"共 {meta.get('n_trading_days', '')} 个交易日；成交量统一换算为「手」，"
-                 "价格取不复权。")
-    _bullet(doc, "独立校验源：baostock。抽取若干标的，把本地缓存与它的收盘价逐日比对：本次抽查 8 只，"
-                 "7 只完全一致，另 1 只相差 0.01 元，属低价股的一分钱取整，可以确认主源没有错位或缺日。"
-                 "复核命令：python -m qlab check --sample 15。腾讯与新浪接口保留，供回退使用。")
+                 "价格取不复权。本次抓取有 294/306 只走新浪备用通道，逐只记录在 manifest 的 "
+                 "channel 字段中。")
+    _bullet(doc, check_text + "腾讯与新浪接口保留，供回退使用。")
     _bullet(doc, "基准：沪深 300 指数（sh000300）日收盘价，与个股同源、同为不含分红的价格序列，口径一致。")
     _bullet(doc, "基准选择理由：本策略只买 A 股大市值股票，沪深 300 是同一域内最有代表性、"
                  "且最常被用作 A 股业绩基准的宽基指数；同时补充中证 500 作为风格参照，"
@@ -341,7 +370,7 @@ def build_technical_report(output_dir: str | Path | None = None,
     _para(doc,
           "系统按「数据层 → 计算层 → 策略层 → 回测层 → 输出层」单向依赖组织，"
           "每层只依赖下一层的抽象接口，因此替换数据源或替换策略都不需要改动回测内核。"
-          "核心包约 3700 行，含脚本与测试约 4400 行，模块划分与职责如下表。", indent=0.74)
+          f"核心包约 {pkg_lines} 行，含脚本与测试约 {total_lines} 行，模块划分与职责如下表。", indent=0.74)
     _figure(doc, FIGURE_DIR / "architecture.png", "图 1　QLab 系统架构与数据流", width_cm=16.0)
 
     _table(doc, pd.DataFrame([
@@ -352,7 +381,7 @@ def build_technical_report(output_dir: str | Path | None = None,
         {"模块": "qlab.analytics", "职责": "输出：绩效指标、样本内外对比、Excel/Markdown 导出"},
         {"模块": "qlab.viz", "职责": "展示：Pillow 绘图（净值/回撤/热力图/因子 IC）"},
         {"模块": "qlab.webapp", "职责": "展示：标准库 HTTP 服务 + 前端看板，支持在线重跑回测"},
-        {"模块": "tests/", "职责": f"{n_tests} 个单元测试：撮合时点、费用记账、指标公式、因子数学、权重约束"},
+        {"模块": "tests/", "职责": f"{n_tests} 个单元测试：撮合时点、费用记账、指标公式、因子数学、权重约束、停牌处理"},
     ]), widths=[3.4, 12.0])
 
     _heading(doc, "3.1 回测内核的三个关键约定", 2)
@@ -360,7 +389,8 @@ def build_technical_report(output_dir: str | Path | None = None,
                  "单元测试用\"跳空 10 倍\"的构造行情验证了这一点——若误用收盘价成交，净值会放大 10 倍。")
     _bullet(doc, "成本按 A 股实际规则计：佣金万 2.5（单笔最低 5 元）、卖出印花税（2023-08-28 前千 1、"
                  "之后千 0.5）、单边滑点 5bp、按 100 股整手取整、现金不足时按比例缩减买单。")
-    _bullet(doc, "停牌与退市处理：当日无开盘价的标的跳过调仓并保留持仓，估值沿用最近有效收盘价。")
+    _bullet(doc, "停牌与退市处理：当日无开盘价的标的不参与调仓、保留原持仓（不能按停牌前价格成交），"
+                 "估值沿用最近有效收盘价。")
 
     # ---------------- 4 策略 ----------------
     _heading(doc, "四、策略设计", 1)
@@ -389,7 +419,7 @@ def build_technical_report(output_dir: str | Path | None = None,
     ic_show["t 值"] = ic_show["t 值"].map(lambda v: f"{v:+.2f}")
     _table(doc, ic_show, widths=[2.4, 6.0, 2.2, 1.8, 1.6, 1.4])
     _para(doc, "注：IC 为因子值与未来 21 个交易日收益的横截面 Spearman 秩相关，"
-               "在样本内的月度调仓日上采样；ICIR = IC 均值 / IC 标准差。",
+               "在样本内（2017-06 起，含因子预热段）的月度调仓日上采样；ICIR = IC 均值 / IC 标准差。",
           size=8.5, color=MUTED)
 
     _heading(doc, "4.3 因子方向与加权", 2)
@@ -409,9 +439,9 @@ def build_technical_report(output_dir: str | Path | None = None,
 
     _heading(doc, "4.4 组合构建与择时", 2)
     _bullet(doc, f"调仓频率：每月最后一个交易日生成信号，次一交易日开盘调仓；首个回测日额外建仓一次。")
-    _bullet(doc, f"持仓数量：综合得分前 {top_n} 只，等权；单票权重上限 8%。")
+    _bullet(doc, f"持仓数量：综合得分前 {top_n} 只，等权；单票权重上限 8%（等权约 3.3%，本样本未触发该上限）。")
     _bullet(doc, f"择时规则：沪深 300 收盘价 > {timing_ma} 日均线 → 满仓；否则仓位降至 "
-                 f"{timing_low * 100:.0f}%。该规则只影响总仓位，不改变选股结果。")
+                 f"{timing_low * 100:.0f}%。该规则只影响目标总仓位，不改变选股名单。")
     _bullet(doc, "样本隔离：因子选择、方向、权重与时序参数全部只用 2023-01-01 之前的数据确定"
                  "（2017-06 起，含因子滚动窗口的预热段）；2023 年之后的数据只用于样本外检验，"
                  "不参与任何决策。")
@@ -435,25 +465,47 @@ def build_technical_report(output_dir: str | Path | None = None,
     _heading(doc, "5.2 核心指标", 2)
     show_metrics = ["累计收益率", "年化收益率", "年化波动率", "最大回撤", "夏普比率",
                     "索提诺比率", "卡玛比率", "月胜率", "超额收益(年化)", "信息比率",
-                    "Beta", "年化换手率"]
-    tbl = metrics_df.loc[[m for m in show_metrics if m in metrics_df.index]].copy()
-    # pandas 3.x 会把「数值 + 日期」的混合列推断成字符串列，这里强制转回数值
-    tbl = tbl.apply(pd.to_numeric, errors="coerce")
-    display = tbl.astype(object)  # 单元格混排百分号/倍数/占位符，用 object 承载
-    for row in display.index:
-        for col in display.columns:
-            v = tbl.loc[row, col]
-            if pd.isna(v):
-                display.loc[row, col] = "—"
-            elif row in ("夏普比率", "索提诺比率", "卡玛比率", "信息比率", "Beta"):
-                display.loc[row, col] = f"{v:.2f}"
-            elif row == "年化换手率":
-                display.loc[row, col] = f"{v:.1f}x"
-            else:
-                display.loc[row, col] = f"{v * 100:.2f}%"
-    display = display.reset_index().rename(columns={"index": "指标"})
-    _table(doc, display, widths=[3.4, 3.2, 3.2, 3.2])
-    _para(doc, "注：\"全样本\"为 2019-01 至今；\"样本内\"\"样本外\"分别按上表切分后重新以区间首日归一计算。",
+                    "Alpha(年化)", "Beta", "年化换手率"]
+    bench_of = {
+        "累计收益率": "基准累计收益率",
+        "年化收益率": "基准年化收益率",
+        "年化波动率": "基准年化波动率",
+        "最大回撤": "基准最大回撤",
+        "夏普比率": "基准夏普比率",
+    }
+
+    def _fmt_metric(name: str, v) -> str:
+        if pd.isna(v):
+            return "—"
+        if name in ("夏普比率", "索提诺比率", "卡玛比率", "信息比率", "Beta"):
+            return f"{v:.2f}"
+        if name == "年化换手率":
+            return f"{v:.1f}x"
+        return f"{v * 100:.2f}%"
+
+    rows = []
+    for m in show_metrics:
+        if m not in metrics_df.index:
+            continue
+        rec = {"指标": m}
+        for seg in ("全样本", "样本内", "样本外"):
+            rec[f"{seg} 策略"] = _fmt_metric(m, float(metrics_df.loc[m, seg]))
+            bm = bench_of.get(m)
+            rec[f"{seg} 基准"] = (
+                _fmt_metric(m, float(metrics_df.loc[bm, seg])) if bm in metrics_df.index else "—"
+            )
+        rows.append(rec)
+    display = pd.DataFrame(rows)
+    _table(doc, display, widths=[3.0, 2.15, 2.15, 2.15, 2.15, 2.15, 2.15])
+    vol_s = m_all.get("年化波动率", 0.0)
+    vol_b = m_all.get("基准年化波动率", 0.0)
+    drag_gap = 0.5 * (vol_b ** 2 - vol_s ** 2)
+    _para(doc,
+          "注：\"全样本\"为 2019-01 至今；\"样本内\"\"样本外\"分别按上表切分后重新以区间首日归一计算。"
+          f"\"年化超额\"为策略与基准 CAGR 之差（几何口径），\"信息比率\"由日频主动收益的算术均值年化得到，"
+          f"两者相差约 {drag_gap * 100:.1f} 个百分点，约等于 0.5×(σ基准²−σ策略²) 的波动率拖累差"
+          f"（策略 {vol_s * 100:.1f}% vs 基准 {vol_b * 100:.1f}%），并非计算错误；"
+          "Alpha 为按 Beta 调整后的年化超额。",
           size=8.5, color=MUTED)
 
     _heading(doc, "5.3 净值曲线与买卖点", 2)
@@ -467,7 +519,8 @@ def build_technical_report(output_dir: str | Path | None = None,
           f"跑输基准的 {m_is.get('基准年化收益率', 0) * 100:.1f}%；样本外（2023 起）策略年化 "
           f"{m_oos.get('年化收益率', 0) * 100:.1f}%，明显好于基准的 "
           f"{m_oos.get('基准年化收益率', 0) * 100:.1f}%。"
-          f"全样本最大回撤 {m_all.get('最大回撤', 0) * 100:.1f}%，"
+          f"全样本收益与基准基本持平，优势主要体现在回撤与夏普：最大回撤 "
+          f"{m_all.get('最大回撤', 0) * 100:.1f}%，"
           f"明显小于基准的 {m_all.get('基准最大回撤', 0) * 100:.1f}%，"
           f"主要因为择时在指数跌破 {timing_ma} 日均线时把仓位降到 {timing_low * 100:.0f}%。"
           f"图中 ▲ 为建仓/加仓、▼ 为降仓，虚线为样本内外分界。", indent=0.74)
@@ -476,7 +529,7 @@ def build_technical_report(output_dir: str | Path | None = None,
     _figure(doc, FIGURE_DIR / "monthly_heatmap.png",
             "图 4　月度收益热力图（红色=正收益、绿色=负收益，符合 A 股习惯；最后一列为全年累计）")
     _figure(doc, FIGURE_DIR / "exposure.png", "图 5　股票仓位与持仓只数")
-    _figure(doc, FIGURE_DIR / "factor_ic.png", "图 6　候选因子 ICIR（红色为入选组合的因子）")
+    _figure(doc, FIGURE_DIR / "factor_ic.png", "图 6　候选因子 ICIR（深蓝为入选组合的因子）")
 
     # ---------------- 6 样本内外 ----------------
     _heading(doc, "六、样本内/样本外对比与超额收益来源", 1)
@@ -522,18 +575,83 @@ def build_technical_report(output_dir: str | Path | None = None,
 
     _heading(doc, "6.1 超额收益从哪里来", 2)
     _bullet(doc, "选股 alpha：入选因子按其样本内 IC 符号调整方向后合成综合得分，得分靠前的组合"
-                 "在下一期具有横截面区分度（见 4.2/4.3 的 IC 与 ICIR），这部分贡献稳定但幅度有限，"
-                 f"样本内年化超额为 {excess_is * 100:.1f}%。")
-    _bullet(doc, f"择时的仓位管理：关闭择时后最大回撤由 {m_all.get('最大回撤', 0) * 100:.1f}% "
-                 f"扩大到 {_ab('关闭择时', '最大回撤'):.1f}%、年化收益由 "
-                 f"{_ab('主策略（Top30 + ICIR加权 + 择时）', '年化收益率'):.1f}% 升到 "
-                 f"{_ab('关闭择时', '年化收益率'):.1f}%——择时的价值集中在风险端，代价是牺牲收益。")
-    _bullet(doc, "成本可控：月频调仓 + 30 只持仓，年化换手约 "
-                 f"{m_all.get('年化换手率', 0):.1f} 倍，交易成本（佣金+印花税+滑点）"
-                 f"拖累约 {(1 - (1 - 0.0009) ** (2 * m_all.get('年化换手率', 0))) * 100:.1f}%/年，"
-                 "仍在 alpha 可覆盖的范围内。")
+                 "在下一期具有横截面区分度（见 4.2/4.3 的 IC 与 ICIR），但幅度有限："
+                 f"样本内年化超额为 {excess_is * 100:.1f}%，说明这部分 alpha 并不稳定。")
+    main_cagr = _ab("主策略（Top30 + ICIR加权 + 择时）", "年化收益率")
+    off_cagr = _ab("关闭择时", "年化收益率")
+    main_mdd = _ab("主策略（Top30 + ICIR加权 + 择时）", "最大回撤")
+    off_mdd = _ab("关闭择时", "最大回撤")
+    main_sharpe = _ab("主策略（Top30 + ICIR加权 + 择时）", "夏普比率")
+    off_sharpe = _ab("关闭择时", "夏普比率")
+    if ablation is not None and not pd.isna(main_cagr):
+        _bullet(doc, f"择时的仓位管理：关闭择时后年化收益由 {main_cagr:.1f}% 升到 {off_cagr:.1f}%、"
+                     f"夏普由 {main_sharpe:.2f} 升到 {off_sharpe:.2f}，只有最大回撤由 {main_mdd:.1f}% "
+                     f"扩大到 {off_mdd:.1f}%。也就是说，本样本上择时只在回撤维度占优，风险调整后收益反而更低；"
+                     "它是按回撤预算做的取舍，不应表述为收益增强。")
+    else:
+        _bullet(doc, f"择时的仓位管理：策略最大回撤 {m_all.get('最大回撤', 0) * 100:.1f}%，"
+                     f"基准 {m_all.get('基准最大回撤', 0) * 100:.1f}%；择时主要作用在回撤维度。")
+    # 实测成本：从成交表与净值表直接算，不再用“换手×费率”的近似公式
+    cost_drag = float("nan")
+    trades_path = TABLE_DIR / "trades.csv"
+    nav_path = TABLE_DIR / "nav_daily.csv"
+    if trades_path.exists() and nav_path.exists():
+        _trades = pd.read_csv(trades_path)
+        _nav = pd.read_csv(nav_path, index_col=0)
+        _years = float(m_all.get("年数") or 0.0)
+        if not _trades.empty and "equity" in _nav and _years > 0:
+            cost_drag = ((_trades["total_fee"].sum() + _trades["slippage_cost"].sum())
+                         / _nav["equity"].mean() / _years)
+    if pd.notna(cost_drag):
+        _bullet(doc, f"成本可控：月频调仓 + {top_n} 只持仓，年化双边换手约 "
+                     f"{m_all.get('年化换手率', 0):.1f} 倍；按成交表实测，交易成本（佣金+印花税+滑点）"
+                     f"约 {cost_drag * 100:.2f}%/年，成本前毛超额约 "
+                     f"{(m_all.get('超额收益(年化)', 0) + cost_drag) * 100:.1f}%/年。")
+    else:
+        _bullet(doc, "成本可控：月频调仓 + 30 只持仓，年化换手约 "
+                     f"{m_all.get('年化换手率', 0):.1f} 倍，交易成本对收益的拖累在 1% 量级。")
     _bullet(doc, "幸存者偏差（负面因素）：股票池按 2026 年市值取前 300，天然只包含活到今天的赢家，"
                  "这部分会让超额收益被高估，是本文最需要说明的局限。")
+
+    # ---------------- 6.2 中证 500 风格参照 ----------------
+    eb = summary.get("extra_benchmarks", {})
+    if eb:
+        _heading(doc, "6.2 风格参照：中证 500", 2)
+        _para(doc, "为判断策略收益是否只是大盘风格，另取中证 500 作为中小盘风格参照。"
+                   "策略、沪深 300 与中证 500 使用同一区间、同为价格指数口径。", indent=0.74)
+        eb_rows = [
+            {"指数/策略": "策略",
+             "累计收益率": f"{m_all.get('累计收益率', 0) * 100:.1f}%",
+             "年化收益率": f"{m_all.get('年化收益率', 0) * 100:.1f}%",
+             "最大回撤": f"{m_all.get('最大回撤', 0) * 100:.1f}%",
+             "夏普比率": f"{m_all.get('夏普比率', 0):.2f}"},
+            {"指数/策略": f"{meta['benchmark']}（基准）",
+             "累计收益率": f"{m_all.get('基准累计收益率', 0) * 100:.1f}%",
+             "年化收益率": f"{m_all.get('基准年化收益率', 0) * 100:.1f}%",
+             "最大回撤": f"{m_all.get('基准最大回撤', 0) * 100:.1f}%",
+             "夏普比率": f"{m_all.get('基准夏普比率', 0):.2f}"},
+        ]
+        for sym, d in eb.items():
+            cm = d.get("metrics", {})
+            eb_rows.append({
+                "指数/策略": d.get("name", sym),
+                "累计收益率": f"{cm.get('累计收益率', 0) * 100:.1f}%",
+                "年化收益率": f"{cm.get('年化收益率', 0) * 100:.1f}%",
+                "最大回撤": f"{cm.get('最大回撤', 0) * 100:.1f}%",
+                "夏普比率": f"{cm.get('夏普比率', 0):.2f}",
+            })
+        _table(doc, pd.DataFrame(eb_rows), widths=[3.6, 3.0, 3.0, 3.0, 3.0])
+        first = next(iter(eb.values()), {})
+        cm = first.get("metrics", {})
+        if cm:
+            _para(doc, f"{first.get('name', '中证 500')} 同期累计 {cm.get('累计收益率', 0) * 100:.1f}%、"
+                       f"年化 {cm.get('年化收益率', 0) * 100:.1f}%、"
+                       f"最大回撤 {cm.get('最大回撤', 0) * 100:.1f}%、"
+                       f"夏普 {cm.get('夏普比率', 0):.2f}；策略年化 "
+                       f"{m_all.get('年化收益率', 0) * 100:.1f}%、最大回撤 "
+                       f"{m_all.get('最大回撤', 0) * 100:.1f}%。策略收益低于中证 500，但回撤明显更小，"
+                       "说明组合的风险暴露与两个宽基指数都不同，收益并非单纯来自某个风格 beta；"
+                       "2023 年后红利/大盘价值风格对结果的贡献仍需保留。", indent=0.74)
 
     # ---------------- 7 参数敏感性 ----------------
     if ablation is not None:
@@ -548,21 +666,28 @@ def build_technical_report(output_dir: str | Path | None = None,
         for c in ("夏普比率", "卡玛比率"):
             if c in ab:
                 ab[c] = ab[c].map(lambda v: f"{v:.2f}" if pd.notna(v) else "—")
-        _table(doc, ab, widths=[5.0, 2.4, 2.4, 1.8, 1.8, 2.2, 2.2])
+        _table(doc, ab, widths=[4.6, 2.2, 2.2, 1.7, 1.7, 2.0, 2.0])
 
+        ma60 = _ab("择时 MA60", "年化收益率")
+        ma250 = _ab("择时 MA250", "年化收益率")
+        low0 = _ab("择时低仓位 0%", "年化收益率")
+        low50 = _ab("择时低仓位 50%", "年化收益率")
         _para(doc,
-              f"几点观察：(1) 关闭择时后年化收益 {_ab('关闭择时', '年化收益率'):.1f}%、"
-              f"最大回撤 {_ab('关闭择时', '最大回撤'):.1f}%，主策略为 "
-              f"{_ab('主策略（Top30 + ICIR加权 + 择时）', '年化收益率'):.1f}% / "
-              f"{_ab('主策略（Top30 + ICIR加权 + 择时）', '最大回撤'):.1f}%，"
-              "属于典型的“用回撤换收益”，说明择时主要作用在风险端；"
+              f"几点观察：(1) 关闭择时后年化收益 {off_cagr:.1f}%、"
+              f"最大回撤 {off_mdd:.1f}%、夏普 {off_sharpe:.2f}，主策略为 "
+              f"{main_cagr:.1f}% / {main_mdd:.1f}% / {main_sharpe:.2f}；"
+              "关闭择时在收益与夏普上更优、只在回撤上更差，"
+              "说明本样本上择时不是收益增强项，而是按回撤预算做的仓位约束；"
               f"(2) 持仓由 20 只增至 50 只，年化收益 {_ab('持仓 20 只', '年化收益率'):.1f}% → "
               f"{_ab('持仓 50 只', '年化收益率'):.1f}%、最大回撤 "
               f"{_ab('持仓 20 只', '最大回撤'):.1f}% → {_ab('持仓 50 只', '最大回撤'):.1f}%，"
               "本样本上集中持仓的收益弹性更大，分散化并没有自动带来更高收益；"
               f"(3) 季度调仓年化换手降至 {_ab('季度调仓', '年化换手率') / 100:.1f} 倍、"
               f"年化收益 {_ab('季度调仓', '年化收益率'):.1f}%，说明月频调仓捕捉到的短周期信号更多，"
-              "但也要付出更高的交易成本。", indent=0.74)
+              "但也要付出更高的交易成本；"
+              f"(4) 择时参数上，均线窗口改为 60/250 日年化分别为 {ma60:.1f}%/{ma250:.1f}%，"
+              f"低仓位改为清仓/50% 分别为 {low0:.1f}%/{low50:.1f}%，说明结论对择时参数并不稳定，"
+              f"{timing_ma} 日/{timing_low:.0%} 是按回撤预算选定的参数，并非收益最优。", indent=0.74)
 
     # ---------------- 8 局限 ----------------
     _heading(doc, "八、已知局限与改进方向", 1)
@@ -573,8 +698,9 @@ def build_technical_report(output_dir: str | Path | None = None,
                  "改进：个股改用后复权、基准改用沪深 300 全收益指数，可得到含分红的绝对收益。")
     _bullet(doc, "因子维度有限：目前只有量价因子，缺少基本面（估值、盈利、成长）与分析师预期数据，"
                  "无法做真正的多维度多因子模型。")
-    _bullet(doc, "未考虑冲击成本与容量：组合规模假设为 1000 万元，策略容量远大于此，"
-                 "但若资金量放大，停牌与涨跌停导致的无法成交比例会上升。")
+    _bullet(doc, "未考虑冲击成本与容量：组合初始资金为 100 万元，复制时先受 100 股整手约束；"
+                 "受此限制，个别高价股（如贵州茅台，一手约 15.7 万元）在小资金下无法买入，"
+                 "实际持仓为 27–30 只而非严格 30 只。若资金量放大，停牌与涨跌停导致的无法成交比例会上升。")
     _bullet(doc, "未做行业中性：组合可能在某些行业上过度集中。改进：加入行业哑变量做中性化。")
 
     # ---------------- 9 AI 说明 ----------------

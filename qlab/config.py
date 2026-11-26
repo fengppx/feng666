@@ -137,8 +137,8 @@ class StrategyConfig:
     factor_select_k: int = 5
     min_abs_icir: float = 0.15
     max_factor_corr: float = 0.75     # 因子间最大允许相关（去共线）
-    # 因子权重：equal = 等权 z-score；icir = 按样本内 ICIR 加权
-    weighting: str = "equal"
+    # 因子权重：equal = 等权 z-score；icir = 按样本内 ICIR 加权（与主流程一致）
+    weighting: str = "icir"
     # 单因子极值处理
     winsorize_quantile: float = 0.02  # 双侧各截断 2%
     # 组合约束

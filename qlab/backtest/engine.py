@@ -164,7 +164,6 @@ class PortfolioBacktester:
 
         equity_curve, cash_curve, exposure_curve, holdings_curve = [], [], [], []
         trades: list[dict] = []
-        turnover_curve: list[float] = []
         skipped = 0
 
         symbols = list(targets.columns) if not targets.empty else []
@@ -174,12 +173,11 @@ class PortfolioBacktester:
             if day in exec_days:
                 signal_day = exec_days[day]
                 weights = targets.loc[signal_day]
-                cash, shares, day_trades, day_turnover, n_skip = self._rebalance(
+                cash, shares, day_trades, _day_turnover, n_skip = self._rebalance(
                     day, cash, shares, weights, open_px.loc[day], close_px.loc[day],
                     last_price, names,
                 )
                 trades.extend(day_trades)
-                turnover_curve.append(day_turnover)
                 skipped += n_skip
 
             # ---------------- 更新最新价（收盘） ----------------
@@ -266,12 +264,15 @@ class PortfolioBacktester:
         names: dict[str, str],
     ) -> tuple[float, dict[str, int], list[dict], float, int]:
         """单次调仓：把持仓调整为 ``weights`` 指定的目标权重。"""
-        # 1) 估值口径：优先开盘价，停牌用最近收盘价
+        # 1) 估值口径：优先开盘价；停牌（无开盘价）时沿用最近收盘价，仅用于估值。
+        #    “能不能估值”与“能不能成交”必须分开：只有当日有开盘价的标的才可交易。
         price_now: dict[str, float] = {}
+        tradable: dict[str, float] = {}
         for sym in set(list(shares) + list(weights.index)):
             p = open_px.get(sym, np.nan)
             if isinstance(p, (int, float, np.floating)) and not np.isnan(p) and p > 0:
                 price_now[sym] = float(p)
+                tradable[sym] = float(p)
             else:
                 p2 = last_price.get(sym, close_px.get(sym, np.nan))
                 if isinstance(p2, (int, float, np.floating)) and not np.isnan(p2) and p2 > 0:
@@ -282,14 +283,12 @@ class PortfolioBacktester:
         if equity <= 0:
             return cash, shares, [], 0.0, 0
 
-        # 2) 目标股数（买入向下取整到整手）
-        tradable: dict[str, float] = {}
+        # 2) 目标股数（买入向下取整到整手；停牌标的不可交易）
         target_shares: dict[str, int] = {}
         for sym, w in weights.items():
-            p = price_now.get(sym, np.nan)
-            if not (isinstance(p, (int, float, np.floating)) and p > 0):
+            p = tradable.get(sym)
+            if not p:
                 continue
-            tradable[sym] = float(p)
             w = float(w)
             if w <= 0:
                 target_shares[sym] = 0
@@ -300,10 +299,14 @@ class PortfolioBacktester:
         # 3) 卖出（先释放现金）
         trade_list: list[dict] = []
         total_turnover_value = 0.0
+        n_skip = 0
         for sym in list(shares):
             want = target_shares.get(sym, 0)  # 不在目标组合中则清零
             cur = shares[sym]
-            if cur <= want or sym not in tradable:
+            if cur <= want:
+                continue
+            if sym not in tradable:           # 停牌：保留原持仓，跳过本次调仓
+                n_skip += 1
                 continue
             qty = cur - want
             fill = self.costs.fill_sell(tradable[sym], qty, day)
@@ -350,7 +353,7 @@ class PortfolioBacktester:
         # 5) 清理空仓、记录换手
         shares = {s: q for s, q in shares.items() if q > 0}
         turnover = total_turnover_value / equity if equity > 0 else 0.0
-        return cash, shares, trade_list, turnover, 0
+        return cash, shares, trade_list, turnover, n_skip
 
     # ------------------------------------------------------------------
     @staticmethod

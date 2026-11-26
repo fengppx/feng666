@@ -78,6 +78,29 @@ class TestTargetWeights(unittest.TestCase):
         targets = strat.generate_targets(panel, start=bt.start)
         self.assertTrue(targets.empty or (targets.sum(axis=1) > 0).any())
 
+    def test_zero_exposure_day_is_kept_as_clear_signal(self):
+        """仓位系数为 0 的调仓日必须保留为“清仓”，不能被当成“无信号”丢掉。"""
+        n = 160
+        dates = pd.bdate_range("2018-01-01", periods=n)
+        trend = pd.Series(np.linspace(200.0, 100.0, n), index=dates)
+        close = pd.DataFrame(
+            {f"S{i:02d}": trend * (1 + 0.01 * i) for i in range(10)}, index=dates
+        )
+        vol = pd.DataFrame(1000.0, index=dates, columns=close.columns)
+        panel = MarketPanel(
+            open=close.copy(), high=close * 1.01, low=close * 0.99, close=close,
+            volume=vol, benchmark=trend, benchmark_name="下行基准",
+            names={c: c for c in close.columns}, extra_benchmarks={},
+        )
+        cfg = StrategyConfig(timing_enabled=True, timing_ma_window=20,
+                             timing_low_exposure=0.0)
+        bt = BacktestConfig(start="2018-06-01", top_n=5)
+        strat = MultiFactorStrategy(cfg, bt)
+        strat.specs = [FactorSpec(name="mom_1", ic_mean=0.02, icir=0.3, sign=1, weight=1.0)]
+        targets = strat.generate_targets(panel, start=bt.start)
+        self.assertFalse(targets.empty)
+        self.assertTrue((targets.sum(axis=1) == 0).any(), "空仓信号被丢弃")
+
 
 if __name__ == "__main__":
     unittest.main()

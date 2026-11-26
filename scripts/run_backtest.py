@@ -141,6 +141,7 @@ def main() -> int:
             "provider": data_cfg.provider,
             "adjust": data_cfg.adjust,
             "names": panel.names,
+            "extra_benchmark_names": dict(data_cfg.extra_benchmarks),
         },
         rf=bt_cfg.risk_free_rate,
     )
@@ -232,6 +233,16 @@ def _run_ablation(panel, bt_panel, strategy, bt_cfg, strat_cfg) -> None:
     strat_q = dataclasses.replace(strategy, cfg=strat_cfg)
     strat_q.rebalance_dates = lambda index, start=None: _quarterly_dates(index, start)
     record("季度调仓", run_once(panel, bt_panel, strat_q, bt_cfg))
+
+    # 择时参数敏感性：均线窗口与低仓位比例是影响最大的两个参数，必须单独扫一遍
+    for ma in (60, 250):
+        cfg_t = dataclasses.replace(strat_cfg, timing_ma_window=ma)
+        strat_t = dataclasses.replace(strategy, cfg=cfg_t)
+        record(f"择时 MA{ma}", run_once(panel, bt_panel, strat_t, bt_cfg))
+    for low in (0.0, 0.5):
+        cfg_t = dataclasses.replace(strat_cfg, timing_low_exposure=low)
+        strat_t = dataclasses.replace(strategy, cfg=cfg_t)
+        record(f"择时低仓位 {low:.0%}", run_once(panel, bt_panel, strat_t, bt_cfg))
 
     # 仅多头等权持有全部样本（对照：不做选股）
     df = pd.DataFrame(rows).set_index("配置")

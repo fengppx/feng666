@@ -37,7 +37,6 @@ def fig_nav_curve(
     path: str | Path | None = None,
     split_date: str | None = None,
     title: str = "策略与基准归一化净值（初始 = 1.0）",
-    max_switch_marks: int = 12,
 ) -> Path:
     """净值对比图：两条曲线均归一化到 1.0，并标注关键买卖点。"""
     nav = result.nav.dropna()
@@ -83,13 +82,13 @@ def fig_nav_curve(
                 marks.append((i0, "建仓", "up"))
 
     # 目标权重总仓位变化处 = 择时开关
+    # 注意：不要把切换点按步长抽样——加仓与降仓是交替出现的，隔一个取样会把
+    # 其中一个方向全部删掉（曾经因此出现“图例有降仓、图上全是加仓”的问题）。
+    # 这里保留全部标记，只对文字标签做最小间距过滤。
     if not result.targets.empty:
         gross = result.targets.sum(axis=1)
         changes = gross.diff().abs() > 1e-6
         switch_dates = [d for d in gross.index[changes] if d in nav.index]
-        if len(switch_dates) > max_switch_marks:  # 太密则只取前 max 个，避免图面拥挤
-            step = max(1, len(switch_dates) // max_switch_marks)
-            switch_dates = switch_dates[::step]
         for d in switch_dates:
             i = dates.index(d)
             label = "加仓" if gross.loc[d] > gross.shift(1).loc[d] else "降仓"
@@ -196,13 +195,14 @@ def fig_drawdown(result, path: str | Path | None = None) -> Path:
 
 # ----------------------------------------------------------------------
 def _heat_color(v: float, vmax: float) -> str:
+    """热力图配色：红涨绿跌（A 股习惯），t>0 偏红、t<0 偏绿。"""
     if vmax <= 0:
         vmax = 1.0
     t = max(-1.0, min(1.0, v / vmax))
     if t >= 0:
-        base = (255 - int(120 * (1 - t)), 255 - int(60 * (1 - t)), 235 - int(120 * (1 - t)))
+        base = (255 - int(55 * t), 240 - int(160 * t), 232 - int(155 * t))
     else:
-        base = (255, 240 - int(90 * (1 + t)), 235 - int(120 * (1 + t)))
+        base = (255 - int(200 * (-t)), 245 - int(85 * (-t)), 235 - int(135 * (-t)))
     return "#%02X%02X%02X" % base
 
 
@@ -228,7 +228,7 @@ def fig_monthly_heatmap(result, path: str | Path | None = None) -> Path:
 
     # 标题
     ch.pixel_text(20, 24, "月度收益率热力图（%）", 19, COLORS["text"], anchor="lt")
-    ch.pixel_text(20, 52, f"绿=正收益，红=负收益；年度列按自然年累计", 12,
+    ch.pixel_text(20, 52, "红=正收益，绿=负收益（A 股习惯）；年度列按自然年累计", 12,
                   COLORS["gray"], anchor="lt")
 
     # 表头
