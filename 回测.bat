@@ -10,7 +10,7 @@ if not exist ".venv\Scripts\python.exe" (
     exit /b 1
 )
 
-echo Running backtest, please wait (about 30 seconds)...
+echo Running backtest, please wait (about 10 seconds)...
 echo.
 ".venv\Scripts\python.exe" scripts\run_backtest.py %*
 if errorlevel 1 (

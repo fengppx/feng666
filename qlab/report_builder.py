@@ -320,8 +320,9 @@ def build_technical_report(output_dir: str | Path | None = None,
                  "请求过密被限流时改用新浪通道，单只标的失败不会中断整批。"
                  f"数据区间 {meta.get('data_start', '')} ~ {meta.get('data_end', '')}，"
                  f"共 {meta.get('n_trading_days', '')} 个交易日；成交量统一换算为「手」，"
-                 "价格取不复权。本次抓取有 294/306 只走新浪备用通道，逐只记录在 manifest 的 "
-                 "channel 字段中。")
+                 "价格取不复权。当前 300 只股票池中 294 只走新浪、6 只走东财；manifest 另保留 4 只"
+                 "早期腾讯缓存的旧标的，不在当前股票池内。逐只来源记录在 manifest 的 "
+                 "source/channel 字段中。")
     _bullet(doc, check_text + "腾讯与新浪接口保留，供回退使用。")
     _bullet(doc, "基准：沪深 300 指数（sh000300）日收盘价，与个股同源、同为不含分红的价格序列，口径一致。")
     _bullet(doc, "基准选择理由：本策略只买 A 股大市值股票，沪深 300 是同一域内最有代表性、"
@@ -438,7 +439,7 @@ def build_technical_report(output_dir: str | Path | None = None,
           "并对单日缺失的因子按有效权重重新归一，避免停牌或新股导致得分失真。", indent=0.74)
 
     _heading(doc, "4.4 组合构建与择时", 2)
-    _bullet(doc, f"调仓频率：每月最后一个交易日生成信号，次一交易日开盘调仓；首个回测日额外建仓一次。")
+    _bullet(doc, "调仓频率：每月最后一个交易日生成信号，次一交易日开盘调仓；首个回测日额外建仓一次。")
     _bullet(doc, f"持仓数量：综合得分前 {top_n} 只，等权；单票权重上限 8%（等权约 3.3%，本样本未触发该上限）。")
     _bullet(doc, f"择时规则：沪深 300 收盘价 > {timing_ma} 日均线 → 满仓；否则仓位降至 "
                  f"{timing_low * 100:.0f}%。该规则只影响目标总仓位，不改变选股名单。")
