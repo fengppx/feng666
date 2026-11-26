@@ -146,6 +146,13 @@ class BacktestService:
                     if w > 0
                 ] if not result.targets.empty else [],
                 "rebalances": len(result.rebalance_dates),
+                "cost": {
+                    "commission": float(result.trades["commission"].sum()) if not result.trades.empty else 0.0,
+                    "stamp_duty": float(result.trades["stamp_duty"].sum()) if not result.trades.empty else 0.0,
+                    "slippage": float(result.trades["slippage_cost"].sum()) if not result.trades.empty else 0.0,
+                    "total": float(result.total_cost),
+                    "trades": int(len(result.trades)),
+                },
                 "rebalance_dates": [d.strftime("%Y-%m-%d") for d in result.rebalance_dates],
             }
             self.last_result = payload

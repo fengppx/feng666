@@ -66,6 +66,8 @@
         <span><i class="sw strat"></i>策略</span>
         <span><i class="sw bench"></i>基准</span>
         <span><i class="sw split"></i>样本内外分界</span>
+        <span><i class="sw mk"></i>▲ 建仓/加仓</span>
+        <span><i class="sw mkdn"></i>▼ 降仓</span>
       </div>
     </div>
     <div class="chart-wrap">
@@ -115,6 +117,14 @@
 
   <section class="panel">
     <div class="panel-head">
+      <h2>超额收益与差异来源</h2>
+      <p class="hint">相对沪深 300，按全样本统计</p>
+    </div>
+    <p class="analysis" id="excessText"></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
       <h2>月度收益</h2>
       <p class="hint">单位 %，红涨绿跌；最后一列为该年累计。</p>
     </div>
@@ -158,6 +168,20 @@
         <thead><tr><th>日期</th><th>代码</th><th>名称</th><th>方向</th><th>股数</th><th>价格</th><th>金额</th><th>费用</th></tr></thead>
         <tbody></tbody>
       </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>系统模块</h2>
+      <p class="hint">数据层 → 计算层 → 策略层 → 回测层 → 输出层，单向依赖</p>
+    </div>
+    <div class="modules">
+      <div class="module"><b>数据层 qlab.data</b><span>akshare / baostock 取数、CSV 缓存、质量检查、面板装配</span></div>
+      <div class="module"><b>计算层 qlab.factors</b><span>12 个候选因子、去极值、z-score、IC 与 ICIR</span></div>
+      <div class="module"><b>策略层 qlab.strategy</b><span>样本内选因子、ICIR 加权、Top-N 组合、均线择时</span></div>
+      <div class="module"><b>回测层 qlab.backtest</b><span>T+1 开盘撮合、佣金/印花税/滑点/整手、日频结算</span></div>
+      <div class="module"><b>输出层 analytics · viz · webapp</b><span>绩效指标、Pillow 图表、HTTP 接口与看板</span></div>
     </div>
   </section>
 

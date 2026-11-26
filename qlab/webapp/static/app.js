@@ -185,6 +185,29 @@ class SeriesChart {
       ctx.stroke();
     });
 
+    /* 买卖点标记 */
+    (cfg.markers || []).forEach((m) => {
+      const v = cfg.series[0].data[m.index];
+      if (!isNum(v)) return;
+      const cx = X(m.index);
+      const cy = Y(v);
+      const s = 6.5;
+      ctx.beginPath();
+      if (m.kind === "down") {
+        ctx.moveTo(cx, cy + s * 1.7);
+        ctx.lineTo(cx - s, cy + s * 0.4);
+        ctx.lineTo(cx + s, cy + s * 0.4);
+        ctx.fillStyle = "#12805c";
+      } else {
+        ctx.moveTo(cx, cy - s * 1.7);
+        ctx.lineTo(cx - s, cy - s * 0.4);
+        ctx.lineTo(cx + s, cy - s * 0.4);
+        ctx.fillStyle = "#c8871f";
+      }
+      ctx.closePath();
+      ctx.fill();
+    });
+
     /* 悬停十字线 */
     const hi2 = this.hover;
     if (hi2 >= 0 && hi2 < n) {
@@ -231,6 +254,8 @@ class SeriesChart {
     this.draw();
 
     const rows = this.cfg.tip ? this.cfg.tip(i) : [];
+    const mark = (this.cfg.markers || []).find((m) => m.index === i);
+    if (mark) rows.push(["操作", mark.label, "#ffd479"]);
     if (!rows.length) { this.tip.style.display = "none"; return; }
     this.tip.innerHTML =
       `<div class="t">${this.cfg.dates[i]}</div>` +
@@ -408,7 +433,73 @@ function renderMeta() {
     ["交易成本", "佣金万 2.5（单笔最低 5 元）、卖出印花税、单边滑点 5bp、100 股整手"],
     ["调仓次数", `${data.rebalances || 0} 次`],
   ];
+  const cost = data.cost;
+  if (cost && cost.trades > 0) {
+    rows.push(["成本合计", `佣金 ${money(cost.commission)} · 印花税 ${money(cost.stamp_duty)} · ` +
+      `滑点 ${money(cost.slippage)}，合计 ${money(cost.total)}（${cost.trades} 笔）`]);
+  }
   $("#metaList").innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+}
+
+function buildMarkers(s) {
+  const exp = s.exposure || [];
+  const n = exp.length;
+  const marks = [];
+  let first = -1;
+  for (let i = 0; i < n; i++) {
+    if (isNum(exp[i]) && exp[i] > 0.001) { first = i; break; }
+  }
+  if (first >= 0) marks.push({ index: first, label: "建仓", kind: "up" });
+
+  const switches = [];
+  for (let i = 1; i < n; i++) {
+    if (isNum(exp[i]) && isNum(exp[i - 1]) && Math.abs(exp[i] - exp[i - 1]) > 0.05) {
+      switches.push(i);
+    }
+  }
+  const step = Math.max(1, Math.ceil(switches.length / 10));
+  let last = first;
+  switches.forEach((i, k) => {
+    if (k % step !== 0) return;
+    if (i - last < n * 0.02) return;
+    last = i;
+    const up = exp[i] > exp[i - 1];
+    marks.push({ index: i, label: up ? "加仓" : "降仓", kind: up ? "up" : "down" });
+  });
+  return marks;
+}
+
+function renderExcess() {
+  const el = $("#excessText");
+  if (!el) return;
+  const m = segMetrics("全样本");
+  const ex = m["超额收益(年化)"];
+  const ir = m["信息比率"];
+  const beta = m["Beta"];
+  const up = m["上行捕获"];
+  const down = m["下行捕获"];
+  const parts = [
+    `全样本年化超额 ${pctSigned(ex)}，策略 ${pct(m["年化收益率"])}，基准 ${pct(m["基准年化收益率"])}。`,
+  ];
+  if (isNum(ir)) {
+    const judge = Math.abs(ir) < 0.1
+      ? "主动收益与跟踪误差基本相抵"
+      : ir > 0.3 ? "主动收益相对稳定"
+      : ir > 0 ? "主动收益偏弱但为正"
+      : "主动收益为负，超额不稳定";
+    parts.push(`信息比率 ${num(ir)}，${judge}。`);
+  }
+  if (isNum(beta)) {
+    parts.push(`Beta ${num(beta)}，低于 1 的部分主要来自择时降仓，收益里的市场 beta 成分被压低。`);
+  }
+  if (isNum(up) && isNum(down)) {
+    parts.push(`上行捕获 ${num(up)}、下行捕获 ${num(down)}，` +
+      `${down < up ? "下跌时比上涨时更抗跌" : "上涨跟得上，下跌也扛得多"}。`);
+  }
+  if (isNum(m["最大回撤"]) && isNum(m["基准最大回撤"])) {
+    parts.push(`最大回撤 ${pct(m["最大回撤"])}，基准 ${pct(m["基准最大回撤"])}。`);
+  }
+  el.textContent = parts.join("");
 }
 
 function renderCharts() {
@@ -419,6 +510,7 @@ function renderCharts() {
 
   navChart.set({
     dates: s.dates,
+    markers: buildMarkers(s),
     series: [
       { data: s.nav, color: "#1f4e79", width: 2.2 },
       { data: s.benchmark, color: "#c0504d", width: 1.6 },
@@ -456,6 +548,7 @@ function renderAll() {
   renderHoldings();
   renderTrades();
   renderMeta();
+  renderExcess();
   renderCharts();
 
   const m = STATE.data.meta || {};
